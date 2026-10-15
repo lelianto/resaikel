@@ -1,0 +1,64 @@
+import Link from 'next/link';
+
+import { Logo } from '@/components/signature/logo';
+import { Container } from '@/components/ui/layout';
+
+const COLUMNS = [
+  {
+    title: 'Product',
+    links: [
+      { href: '/how-it-works', label: 'How it works' },
+      { href: '/sign-in', label: 'Sign in' },
+    ],
+  },
+] as const;
+
+export function SiteFooter() {
+  return (
+    <footer className="border-t border-line bg-surface">
+      <Container width="wide" className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-3">
+          <Logo />
+          <p className="max-w-xs text-sm leading-relaxed text-ink-muted">
+            Turn waste into worth. Material, production and market intelligence for circular
+            manufacturing.
+          </p>
+        </div>
+
+        {COLUMNS.map((column) => (
+          <nav key={column.title} aria-label={column.title} className="space-y-3">
+            <h2 className="micro-label">{column.title}</h2>
+            <ul className="space-y-2">
+              {column.links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-ink sm:min-h-0"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
+
+        <div className="space-y-3">
+          <h2 className="micro-label">Honesty note</h2>
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Every example shown on this site is illustrative sample data. resaikel does not claim
+            verified market statistics, active buyer commitments or certified engineering results.
+          </p>
+        </div>
+      </Container>
+
+      <Container
+        width="wide"
+        className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-5"
+      >
+        <p className="micro-label">resaikel — turn waste into worth</p>
+        <p className="micro-label">Built for circular manufacturing</p>
+      </Container>
+    </footer>
+  );
+}

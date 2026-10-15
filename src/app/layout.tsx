@@ -1,0 +1,38 @@
+import type { Metadata, Viewport } from 'next';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
+import type { ReactNode } from 'react';
+
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'resaikel — turn waste into worth',
+    template: '%s · resaikel',
+  },
+  description:
+    'resaikel transforms leftover materials into manufacturable products and real business ' +
+    'opportunities through AI-powered material, production and market intelligence.',
+  applicationName: 'resaikel',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#F7F6F2',
+  colorScheme: 'light',
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="min-h-dvh bg-canvas text-ink">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-ink-inverse"
+        >
+          Skip to content
+        </a>
+        {children}
+      </body>
+    </html>
+  );
+}

@@ -1,0 +1,167 @@
+rules_version = '2';
+
+// resaikel - Firestore security rules
+//
+// Design notes:
+//  * Firestore rules are OR-ed: a rule only grants access. The absence of any
+//    matching `allow` is a deny, so there is no need for a catch-all deny block.
+//  * Authorization is derived exclusively from `organization_members`, keyed by
+//    the deterministic document id `<orgId>_<uid>` so a single `get()` resolves
+//    membership cheaply.
+//  * Almost every domain collection is written by the server (Admin SDK), which
+//    bypasses these rules. Client writes are therefore denied by default. The
+//    only client-writable document is the user's own profile.
+//  * Client reads exist so that tenant isolation can be demonstrated and tested
+//    even if a client query is used; the application's own reads go through
+//    server route handlers.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function memberDoc(orgId) {
+      return get(/databases/$(database)/documents/organization_members/$(orgId + '_' + request.auth.uid));
+    }
+
+    function isMember(orgId) {
+      return signedIn()
+        && memberDoc(orgId) != null
+        && memberDoc(orgId).data.status == 'active';
+    }
+
+    function isOrgAdmin(orgId) {
+      return isMember(orgId)
+        && memberDoc(orgId).data.role in ['owner', 'admin'];
+    }
+
+    // ---------------------------------------------------------------- identity
+
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid;
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid;
+      allow delete: if false;
+    }
+
+    match /organizations/{orgId} {
+      allow read: if isMember(orgId);
+      allow write: if false; // created and mutated server-side only
+    }
+
+    match /organization_members/{memberId} {
+      // A member may read their own membership row, or any row inside an org
+      // they already belong to.
+      allow read: if signedIn()
+        && (memberId == resource.data.orgId + '_' + request.auth.uid
+            || isMember(resource.data.orgId));
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------- org-owned domain
+
+    match /workshops/{workshopId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /workshop_capabilities/{capabilityId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /materials/{materialId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /material_photos/{photoId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /product_opportunities/{opportunityId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /feasibility_results/{resultId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /cost_estimates/{estimateId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /buyer_requirements/{requirementId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /analysis_jobs/{jobId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    // --------------------------------------------------- shared reference data
+
+    match /product_templates/{templateId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /product_components/{componentId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /market_evidence/{evidenceId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ------------------------------------------- server-internal, never public
+
+    match /audit_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /rate_limits/{limitId} {
+      allow read, write: if false;
+    }
+
+    match /idempotency_keys/{keyId} {
+      allow read, write: if false;
+    }
+
+    // Schemas reserved for the deferred commerce modules. Present so the rules
+    // file documents intent and needs no migration later.
+    match /rfqs/{rfqId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /quotations/{quotationId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /opportunity_matches/{matchId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+
+    match /production_outcomes/{outcomeId} {
+      allow read: if isMember(resource.data.orgId);
+      allow write: if false;
+    }
+  }
+}
