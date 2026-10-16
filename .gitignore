@@ -20,7 +20,6 @@ storage-debug.log
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
-next-env.d.ts
 
 .vercel
 .idea/

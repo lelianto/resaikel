@@ -6,6 +6,11 @@ const root = resolve(import.meta.dirname, '../..');
 const read = (path: string) => readFileSync(resolve(root, path), 'utf8');
 
 describe('Cloud Run delivery contract', () => {
+  it('keeps Next.js ambient image declarations available in a clean checkout', () => {
+    expect(read('.gitignore')).not.toMatch(/^next-env\.d\.ts$/m);
+    expect(read('next-env.d.ts')).toContain('next/image-types/global');
+  });
+
   it('builds a standalone server that listens on the Cloud Run port', () => {
     const dockerfile = read('Dockerfile');
     expect(read('next.config.ts')).toContain("output: 'standalone'");
