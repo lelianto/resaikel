@@ -7,7 +7,10 @@ const COLUMNS = [
   {
     title: 'Product',
     links: [
-      { href: '/how-it-works', label: 'How it works' },
+      { href: '/materials/new', label: 'Scan material' },
+      { href: '/impact', label: 'Impact' },
+      { href: '/community', label: 'Community' },
+      { href: '/about', label: 'About' },
       { href: '/sign-in', label: 'Sign in' },
     ],
   },
@@ -20,7 +23,7 @@ export function SiteFooter() {
         <div className="space-y-3">
           <Logo />
           <p className="max-w-xs text-sm leading-relaxed text-ink-muted">
-            Turn waste into worth. Material, production and market intelligence for circular
+            Turn waste into worth. Material, production, and market intelligence for circular
             manufacturing.
           </p>
         </div>
@@ -56,7 +59,7 @@ export function SiteFooter() {
         width="wide"
         className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-5"
       >
-        <p className="micro-label">resaikel — turn waste into worth</p>
+        <p className="micro-label">resaikel | turn waste into worth</p>
         <p className="micro-label">Built for circular manufacturing</p>
       </Container>
     </footer>

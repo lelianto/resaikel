@@ -120,21 +120,21 @@ interface ScenarioDefinition {
 const ID = 'IDR';
 
 const WOOD_WORKSHOP: ScenarioCapability = {
-  name: 'Sample workshop — basic wood tools',
+  name: 'Sample workshop: basic wood tools',
   tools: ['measuring_tape', 'ruler_square', 'circular_saw', 'hand_drill', 'orbital_sander', 'clamps'],
   processes: ['measure_mark', 'cut_straight', 'drill', 'sand', 'glue', 'assemble', 'surface_finish'],
   supportedFamilies: ['sheet_wood', 'solid_wood'],
 };
 
 const CARDBOARD_WORKSHOP: ScenarioCapability = {
-  name: 'Sample workshop — cutting table',
+  name: 'Sample workshop: cutting table',
   tools: ['measuring_tape', 'ruler_square', 'straight_edge', 'utility_knife', 'scoring_bone', 'cutting_mat', 'hot_glue_gun'],
   processes: ['measure_mark', 'cut_straight', 'score', 'fold', 'glue'],
   supportedFamilies: ['cardboard', 'paper'],
 };
 
 const FURNITURE_WORKSHOP: ScenarioCapability = {
-  name: 'Sample workshop — furniture grade',
+  name: 'Sample workshop: furniture grade',
   tools: [
     'measuring_tape',
     'ruler_square',
@@ -197,7 +197,7 @@ const REQUIREMENTS: readonly BuyerRequirement[] = [
 const SCENARIOS: readonly ScenarioDefinition[] = [
   {
     id: 'plywood-offcuts',
-    label: 'Scenario A — Plywood offcuts',
+    label: 'Scenario A: Plywood offcuts',
     blurb:
       'Four clean 600 × 400 × 12 mm plywood offcuts from a cabinet job, and a workshop with basic cutting tools.',
     material: {
@@ -224,7 +224,7 @@ const SCENARIOS: readonly ScenarioDefinition[] = [
   },
   {
     id: 'cardboard-waste',
-    label: 'Scenario B — Cardboard waste',
+    label: 'Scenario B: Cardboard waste',
     blurb:
       'Six clean 1000 × 700 × 3 mm corrugated sheets. Enough for retail packaging, not enough to promise electronics-grade protection.',
     material: {
@@ -251,9 +251,9 @@ const SCENARIOS: readonly ScenarioDefinition[] = [
   },
   {
     id: 'undersized-cardboard',
-    label: 'Scenario C — Offcuts that do not fit',
+    label: 'Scenario C: Offcuts that do not fit',
     blurb:
-      'Two 300 × 200 mm cardboard pieces. Small enough that a shipping box dieline simply cannot be cut from them — but a folding packaging insert still can, which is exactly the kind of answer that is more useful than a single yes or no.',
+      'Two 300 × 200 mm cardboard pieces. Small enough that a shipping box dieline simply cannot be cut from them, but a folding packaging insert still can. That answer is more useful than a single yes or no.',
     material: {
       title: 'Small corrugated offcuts (sample)',
       category: 'cardboard',

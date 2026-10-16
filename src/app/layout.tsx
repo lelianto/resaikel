@@ -1,9 +1,16 @@
 import type { Metadata, Viewport } from 'next';
 import { GeistMono } from 'geist/font/mono';
-import { GeistSans } from 'geist/font/sans';
+import { Manrope } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 import './globals.css';
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-manrope',
+  display: 'swap',
+  fallback: ['Manrope Fallback', 'Arial', 'sans-serif'],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -23,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`${manrope.variable} ${GeistMono.variable}`}>
       <body className="min-h-dvh bg-canvas text-ink">
         <a
           href="#main"

@@ -4,7 +4,6 @@ import { ArrowRight, Check, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { GridBackdrop } from '@/components/signature/annotations';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented';
 import { CuttingDiagram } from '@/components/opportunity/cutting-diagram';
@@ -18,7 +17,7 @@ import { formatMoney } from '@/domain/money';
 /**
  * Interactive workflow preview.
  *
- * The numbers here are produced by the same engines the application runs — this is
+ * The numbers here are produced by the same engines the application runs. This is
  * a real evaluation of a fixed input, not a mocked-up screenshot. The label says so,
  * because a product whose claim is "we do not invent numbers" cannot afford a
  * landing page that does.
@@ -34,7 +33,7 @@ const STEPS: readonly { id: Step; index: string; label: string }[] = [
 ];
 
 function money(amountMinor: number | null, currency: string, locale = 'id-ID', compact = true): string {
-  if (amountMinor === null) return '—';
+  if (amountMinor === null) return 'Not available';
   return formatMoney({ amount: amountMinor, currency }, locale, { compact });
 }
 
@@ -74,14 +73,12 @@ export function WorkflowPreview({
           size="sm"
           options={scenarios.map((entry) => ({
             value: entry.id,
-            label: entry.label.replace(/^Scenario \w+ — /, ''),
+            label: entry.label.replace(/^Scenario \w+: /, ''),
           }))}
         />
-        <div className="flex flex-wrap items-center gap-1.5">
-          <Badge tone="accent" technical>
-            Live engine output · sample input
-          </Badge>
-        </div>
+        <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-ink-faint">
+          Live engine output · sample input
+        </p>
       </div>
 
       <div className="grid lg:grid-cols-[13rem_minmax(0,1fr)]">
@@ -204,17 +201,16 @@ export function WorkflowPreview({
 
           {step === 'feasibility' && selected ? (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  tone={selected.gatesPassed ? 'success' : 'danger'}
-                  className="text-xs font-medium"
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                <span
+                  className={selected.gatesPassed ? 'font-medium text-success' : 'font-medium text-danger'}
                 >
                   {FEASIBILITY_LABELS[selected.status]}
-                </Badge>
+                </span>
                 {selected.maxUnits > 0 ? (
-                  <Badge tone="neutral" technical>
+                  <span className="font-mono text-ink-muted">
                     {selected.maxUnits} units · {selected.wastePercent}% waste
-                  </Badge>
+                  </span>
                 ) : null}
               </div>
 
@@ -322,19 +318,19 @@ export function WorkflowPreview({
                     </tbody>
                   </table>
 
-                  <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
-                    <Badge tone="neutral">
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-line pt-3 text-xs text-ink-muted">
+                    <span>
                       Contribution {money(selected.contributionPerUnitMinor, scenario.currency, locale)}
-                    </Badge>
-                    <Badge tone="neutral">
+                    </span>
+                    <span>
                       Margin{' '}
                       {selected.contributionMarginBps === null
-                        ? '—'
+                        ? 'Not available'
                         : `${(selected.contributionMarginBps / 100).toFixed(1)}%`}
-                    </Badge>
-                    <Badge tone="neutral" technical>
+                    </span>
+                    <span className="font-mono">
                       Batch of {selected.cost.assumptions.batchSize}
-                    </Badge>
+                    </span>
                   </div>
                 </>
               ) : (
@@ -360,9 +356,9 @@ export function WorkflowPreview({
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-sm font-medium text-ink">{match.label}</span>
-                        <Badge tone="neutral" technical>
-                          match {match.score ?? '—'}/100
-                        </Badge>
+                        <span className="font-mono text-xs text-ink-muted">
+                          match {match.score ?? 'not scored'}/100
+                        </span>
                       </div>
                       <p className="mt-1 text-xs leading-relaxed text-ink-muted">
                         {match.caveats[0]}
@@ -381,13 +377,9 @@ export function WorkflowPreview({
 
               <div className="space-y-2">
                 <h4 className="micro-label">{DEMAND_KIND_LABELS.potential_segment}</h4>
-                <ul className="flex flex-wrap gap-1.5">
+                <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-muted">
                   {selected.segments.map((segment) => (
-                    <li key={segment.label}>
-                      <Badge tone="neutral" className="capitalize">
-                        {segment.label}
-                      </Badge>
-                    </li>
+                    <li key={segment.label} className="capitalize">{segment.label}</li>
                   ))}
                 </ul>
                 <p className="text-xs leading-relaxed text-ink-muted">
@@ -402,9 +394,9 @@ export function WorkflowPreview({
                   <ul className="mt-2 space-y-1">
                     {selected.market.evidence.slice(0, 3).map((row) => (
                       <li key={row.id} className="flex flex-wrap items-baseline gap-2 text-xs">
-                        <Badge tone="neutral" technical>
+                        <span className="font-mono text-[0.6875rem] uppercase tracking-wide text-ink-faint">
                           {EVIDENCE_SOURCE_LABELS[row.sourceType]}
-                        </Badge>
+                        </span>
                         <span className="min-w-0 flex-1 text-ink-muted">{row.description}</span>
                         <span className="tnum font-mono text-ink-muted">
                           {row.priceMinor.toLocaleString(locale)}

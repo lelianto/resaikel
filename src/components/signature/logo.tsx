@@ -51,7 +51,7 @@ export function Logo({
     <span className={cn('inline-flex items-center gap-2', className)}>
       <NestingMark size={size} />
       {showWordmark ? (
-        <span className="text-[1.0625rem] font-medium leading-none tracking-[-0.02em] text-ink">
+        <span className="text-[1.0625rem] font-bold leading-none tracking-[-0.04em] text-ink">
           resaikel
         </span>
       ) : null}

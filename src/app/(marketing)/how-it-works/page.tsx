@@ -4,7 +4,6 @@ import Link from 'next/link';
 
 import { WorkflowPreview } from '@/components/marketing/workflow-preview';
 import { GridBackdrop, SectionRule } from '@/components/signature/annotations';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Container, SectionHeading } from '@/components/ui/layout';
 import { sampleScenarios } from '@/domain/demo/sample-scenarios';
@@ -29,7 +28,7 @@ const PIPELINE = [
   {
     step: '02',
     title: 'Confirm by hand',
-    body: 'You correct and confirm the properties. Every attribute records its provenance — AI inferred, user confirmed, measured, or unknown — and confirmation is blocked until the critical ones are human-verified.',
+    body: 'You correct and confirm the properties. Every attribute records whether it was AI inferred, user confirmed, measured, or unknown. Confirmation is blocked until critical fields are human verified.',
     aside: 'An AI inference is never treated as a measurement.',
   },
   {
@@ -53,7 +52,7 @@ const PIPELINE = [
   {
     step: '06',
     title: 'Evidence the market',
-    body: 'Prices come from a curated reference set, aggregated to a median with 25th and 75th percentiles. Each row is labelled by source type — transaction, quotation, listing, estimate — and the set is scored for quality and freshness.',
+    body: 'Prices come from a curated reference set, aggregated to a median with 25th and 75th percentiles. Each row is labelled as a transaction, quotation, listing, or estimate, and the set is scored for quality and freshness.',
     aside: 'No evidence produces Insufficient Market Data, not a price.',
   },
   {
@@ -65,7 +64,7 @@ const PIPELINE = [
   {
     step: '08',
     title: 'Rank and explain',
-    body: 'Hard gates run before any score. Viable candidates are scored on feasibility, economic value, material utilisation, buyer compatibility, evidence quality and simplicity — with configurable weights and an explanation per dimension.',
+    body: 'Hard gates run before any score. Viable candidates are scored on feasibility, economic value, material utilisation, buyer compatibility, evidence quality, and simplicity, with an explanation per dimension.',
     aside: 'Unknown dimensions are excluded and reported, never scored as zero.',
   },
 ] as const;
@@ -201,10 +200,6 @@ export default function HowItWorksPage() {
             ))}
           </ul>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge tone="neutral">Deferred beyond this release</Badge>
-            <Badge tone="neutral">Documented, not hidden</Badge>
-          </div>
         </Container>
       </section>
 
