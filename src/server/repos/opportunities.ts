@@ -145,7 +145,14 @@ export async function updateOpportunityDocument(
   return { ...existing, ...next };
 }
 
-/** Removes the opportunities and their engine outputs for a re-run material. */
+/**
+ * Removes only disposable recommendations before a re-run.
+ *
+ * Saved opportunities are selected work and may already own actual outcomes;
+ * deleting them during discovery would destroy the Material -> Product -> Outcome
+ * chain. They remain as historical snapshots while fresh recommendations are
+ * generated beside them.
+ */
 export async function deleteOpportunitiesForMaterial(
   orgId: string,
   materialId: string,
@@ -161,14 +168,15 @@ export async function deleteOpportunitiesForMaterial(
   if (snapshot.empty) return 0;
 
   const batch = db.batch();
-  for (const doc of snapshot.docs) {
+  const disposable = snapshot.docs.filter((doc) => doc.data()['saved'] !== true);
+  for (const doc of disposable) {
     batch.delete(doc.ref);
     batch.delete(db.collection(COLLECTIONS.feasibilityResults).doc(doc.id));
     batch.delete(db.collection(COLLECTIONS.costEstimates).doc(doc.id));
   }
   await batch.commit();
 
-  return snapshot.size;
+  return disposable.length;
 }
 
 export async function saveFeasibilityResult(

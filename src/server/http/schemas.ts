@@ -112,6 +112,31 @@ export const opportunitySaveSchema = z.object({
   saved: z.boolean(),
 });
 
+const outcomeCostLinesSchema = z.object({
+  additionalMaterialsMinor: moneyMinor,
+  labourMinor: moneyMinor,
+  overheadMinor: moneyMinor,
+  packagingMinor: moneyMinor,
+  otherMinor: moneyMinor,
+});
+
+export const productionOutcomeSchema = z
+  .object({
+    quantityManufactured: z.number().int().min(0).max(1_000_000),
+    quantitySold: z.number().int().min(0).max(1_000_000),
+    materialConsumedQuantity: z.number().min(0).max(1_000_000),
+    remainingMaterialQuantity: z.number().min(0).max(1_000_000),
+    unusedWasteQuantity: z.number().min(0).max(1_000_000),
+    actualRevenueMinor: moneyMinor,
+    costLines: outcomeCostLinesSchema,
+    occurredAt: z.string().datetime(),
+    notes: z.string().trim().max(1000).nullable().optional(),
+  })
+  .refine((value) => value.quantitySold <= value.quantityManufactured, {
+    message: 'Quantity sold cannot exceed quantity manufactured.',
+    path: ['quantitySold'],
+  });
+
 export const workshopSchema = z.object({
   name: z.string().trim().min(2).max(120),
   city: z.string().trim().max(80).nullable().optional(),

@@ -55,7 +55,7 @@ several roles.
 | Request for quotation and quotations | Collections and rules defined; no UI, no service |
 | Project messaging | Not started |
 | Payment processing | Explicit non-goal; no transaction is implied anywhere |
-| Production outcome tracking | Collections and rules defined; UI not started |
+| Production outcome tracking | Implemented for saved opportunities with actual material, cost, sales and revenue records |
 | Sustainability metrics | Not started, and no carbon figure is claimed |
 | Reverse discovery (buyer → material → manufacturer → RFQ) | Not started |
 | Full buyer and manufacturer marketplace | Not started |
@@ -111,7 +111,7 @@ Quotation creation is deferred.
 | Save opportunities | Done |
 | Create and manage an RFQ | **Deferred** |
 | Manufacturer can respond to an RFQ | **Deferred** |
-| Record production outcomes | **Deferred** |
+| Record production outcomes | Done; actuals remain separate from estimates |
 | Organisation data is protected | Done; see `docs/SECURITY.md` |
 | Works on desktop and mobile | Done; bottom navigation on mobile, comparison optimised for desktop |
 | Automated tests cover critical calculations and boundaries | Done; 187 tests |

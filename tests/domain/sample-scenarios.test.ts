@@ -4,6 +4,7 @@ import { sampleScenario, sampleScenarios, scenarioMaterialSummary } from '@/doma
 import { SAMPLE_MARKET_EVIDENCE } from '@/domain/demo/market-evidence';
 import { EVIDENCE_SOURCE_TYPES } from '@/domain/market/types';
 import { PRODUCT_TEMPLATES } from '@/domain/catalog/templates';
+import { computeProductionOutcome } from '@/domain/outcomes/engine';
 
 /**
  * The landing page and the how-it-works page both render `sampleScenarios()`.
@@ -236,5 +237,36 @@ describe('sample scenarios', () => {
     const summary = scenarioMaterialSummary(scenario.material);
     expect(summary).toMatch(/600 × 400 mm/);
     expect(summary).toMatch(/4 sheet\(s\)/);
+  });
+
+  it('connects the plywood estimate to a separately recorded actual outcome', () => {
+    const plywood = sampleScenario('plywood-offcuts')!;
+    const selected = plywood.opportunities.find((entry) => entry.gatesPassed && entry.cost);
+    expect(selected).toBeDefined();
+
+    const made = Math.min(selected!.maxUnits, 8);
+    const sold = Math.max(0, made - 1);
+    const actual = computeProductionOutcome({
+      quantityManufactured: made,
+      quantitySold: sold,
+      materialConsumedQuantity: plywood.material.sheetCount - 1,
+      remainingMaterialQuantity: 1,
+      unusedWasteQuantity: 0.2,
+      actualRevenueMinor: sold * (selected!.referencePriceMinor ?? 50_000),
+      costLines: {
+        additionalMaterialsMinor: 80_000,
+        labourMinor: 180_000,
+        overheadMinor: 40_000,
+        packagingMinor: 35_000,
+        otherMinor: 0,
+      },
+    });
+
+    expect(selected!.unitCostMinor).not.toBeNull();
+    expect(actual.totalActualCostMinor).toBe(335_000);
+    expect(actual.sellThroughBps).toBe(Math.round((sold * 10_000) / made));
+    expect(actual.actualGrossProfitMinor).toBe(
+      sold * (selected!.referencePriceMinor ?? 50_000) - 335_000,
+    );
   });
 });

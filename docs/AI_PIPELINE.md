@@ -19,9 +19,9 @@ can be swapped without a code change:
 
 | Variable | Default | Used for |
 |---|---|---|
-| `GEMINI_MATERIAL_MODEL` | `gemini-2.5-flash-lite` | Photograph analysis — the cost-efficient multimodal call |
-| `GEMINI_DISCOVERY_MODEL` | `gemini-2.5-flash` | Catalogue-bound product candidate selection |
-| `GEMINI_EXPLANATION_MODEL` | `gemini-2.5-flash` | Prose explanations and buyer segmentation |
+| `GEMINI_MATERIAL_MODEL` | `gemini-3.1-flash-lite` | Photograph analysis — the cost-efficient multimodal call |
+| `GEMINI_DISCOVERY_MODEL` | `gemini-3.1-flash-lite` | Catalogue-bound product candidate selection |
+| `GEMINI_EXPLANATION_MODEL` | `gemini-3.1-flash-lite` | Prose explanations and buyer segmentation |
 
 Verify availability and pricing against current Google documentation before
 changing these. No image generation is used: it would add cost and latency for

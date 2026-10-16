@@ -25,6 +25,9 @@ import {
   getOpportunityDocument,
 } from '@/server/repos/opportunities';
 import { SaveOpportunityButton } from '@/components/opportunity/save-opportunity-button';
+import { ProductionOutcomes } from '@/components/opportunity/production-outcomes';
+import { listProductionOutcomes } from '@/server/repos/outcomes';
+import { getMaterialDocument } from '@/server/repos/materials';
 
 export const metadata: Metadata = { title: 'Opportunity' };
 
@@ -46,10 +49,12 @@ export default async function OpportunityDetailPage({
   const opportunity = await getOpportunityDocument(auth.orgId, id);
   if (!opportunity) notFound();
 
-  const [feasibility, cost, evidenceRows] = await Promise.all([
+  const [feasibility, cost, evidenceRows, outcomes, material] = await Promise.all([
     getFeasibilityResult(auth.orgId, id),
     getCostEstimate(auth.orgId, id),
     listMarketEvidence(opportunity.category),
+    listProductionOutcomes(auth.orgId, id),
+    getMaterialDocument(auth.orgId, opportunity.materialId),
   ]);
 
   const market = assessMarket(evidenceRows, {
@@ -484,6 +489,15 @@ export default async function OpportunityDetailPage({
             ? 'No market evidence exists for this category, so buyer segments were assessed on product and material fit only — price was deliberately not considered.'
             : null
         }
+      />
+
+      <ProductionOutcomes
+        opportunityId={opportunity.id}
+        saved={opportunity.saved}
+        outcomes={outcomes}
+        currency={opportunity.summary.currency}
+        locale={auth.locale}
+        quantityUnit={material?.quantity.unit ?? 'recorded material units'}
       />
 
       {/* --------------------------------------------------------------- risks */}

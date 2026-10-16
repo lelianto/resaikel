@@ -109,7 +109,15 @@ A thin, strict boundary:
   from another organisation is reported as not found, never as forbidden, so an id
   cannot be probed for existence
 - `services/` — orchestration. `discovery.ts` runs the whole pipeline;
-  `analysis.ts` owns the async job
+  `analysis.ts` owns the async job, and `outcomes.ts` records actual results without
+  rewriting estimates
+
+### Outcome continuity
+
+Saved opportunities accept append-only production outcomes. Each record contains
+actual quantities, material balance, line-item costs and revenue, then derives gross
+result and sell-through with pure TypeScript. The original feasibility and estimate
+remain unchanged, which keeps forecast-versus-actual reporting possible.
 
 ### App (`src/app`)
 

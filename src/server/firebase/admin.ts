@@ -101,6 +101,7 @@ export const COLLECTIONS = {
   costEstimates: 'cost_estimates',
   marketEvidence: 'market_evidence',
   buyerRequirements: 'buyer_requirements',
+  productionOutcomes: 'production_outcomes',
   auditEvents: 'audit_events',
   rateLimits: 'rate_limits',
   idempotencyKeys: 'idempotency_keys',

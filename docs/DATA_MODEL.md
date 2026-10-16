@@ -25,6 +25,7 @@ erDiagram
   product_templates ||--o{ product_components : "composed of"
   product_templates ||--o{ product_opportunities : "instantiates"
   organizations ||--o{ buyer_requirements : "registers"
+  product_opportunities ||--o{ production_outcomes : "records actuals"
   market_evidence }o--o{ product_opportunities : "prices"
   organizations ||--o{ audit_events : "records"
 ```
@@ -111,6 +112,7 @@ and needed in both places.
 |---|---|---|
 | `market_evidence` | Seeded id | Shared reference rows. Readable by any signed-in user, writable by nobody through the client. Every row carries `sourceType` and `isSampleData` |
 | `buyer_requirements` | Auto id | Registered demand. `consentToMatch` gates whether the record is ever loaded by the matching query, and `verified` mirrors it |
+| `production_outcomes` | Auto id | Actual quantities, material balance, cost lines, revenue and derived gross result for a saved opportunity |
 
 `sourceType` is one of `verified_transaction`, `actual_quotation`,
 `public_listing`, `manual_estimate`, `hypothetical`. Each contributes a different
@@ -131,10 +133,11 @@ frozen into an old estimate.
 
 ### Reserved
 
-`rfqs`, `quotations`, `opportunity_matches` and `production_outcomes` appear in
-`firestore.rules` with the correct tenant isolation, so the deferred commerce layer
-needs no migration. Nothing writes to them in this release, and no UI implies
-otherwise.
+`production_outcomes` stores user-recorded actual production, sales, material
+balance, revenue and line-item costs. It snapshots the related product and estimate
+so actual results never rewrite the original forecast. `rfqs`, `quotations` and
+`opportunity_matches` remain reserved for a deferred commerce layer; no UI implies
+they exist today.
 
 ## Indexes
 
@@ -154,6 +157,7 @@ Composite indexes are declared in `firestore.indexes.json`:
 | `cost_estimates` | `orgId`, `opportunityId`, `computedAt` DESC |
 | `market_evidence` | `productCategory`, `region`, `observedAt` DESC |
 | `buyer_requirements` | `kind`, `productCategories` CONTAINS, `createdAt` DESC |
+| `production_outcomes` | `orgId`, `opportunityId`, `occurredAt` DESC |
 
 Every list query in the application is backed by one of these. There is no
 unbounded scan.

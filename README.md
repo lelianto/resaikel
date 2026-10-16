@@ -24,6 +24,7 @@ Prosesnya berjalan secara berurutan:
 4. deterministic engine memeriksa material, ukuran, alat, proses, dan cutting layout.
 5. cost engine menghitung biaya menggunakan integer minor units.
 6. market dan buyer engine menyusun opportunity berdasarkan evidence yang tersedia.
+7. Opportunity yang dipilih menyimpan hasil produksi, biaya, penjualan, dan material aktual tanpa mengubah estimasi awal.
 
 Model bahasa tidak menentukan ukuran, kelayakan produksi, biaya, atau ranking. Nilai tersebut berasal dari input manusia dan deterministic domain engine.
 
@@ -95,6 +96,7 @@ Gemini API key tidak diperlukan untuk local development. Jika `GEMINI_API_KEY` t
 - Evidence-based market assessment
 - Consent-aware buyer matching dan capacity shortfall detection
 - Hard-gated opportunity ranking
+- Estimated-versus-actual production outcome tracking
 - Responsive UI menggunakan Manrope dan maskot Reka
 
 ## Batas implementasi saat ini
@@ -134,7 +136,7 @@ npm run test:coverage
 npm run build
 ```
 
-Baseline saat ini: **187 tests passed dan 1 optional real-photo case skipped**.
+Baseline saat ini: **195 tests passed dan 1 optional real-photo case skipped**.
 
 Test suite mencakup money arithmetic, unit conversion, packing, feasibility gates, costing, market aggregation, buyer matching, ranking, AI schemas, catalogue enforcement, unsafe claims, caching, sample scenarios, dan real photograph validation.
 
@@ -147,6 +149,9 @@ Test suite mencakup money arithmetic, unit conversion, packing, feasibility gate
 - [Feasibility engine](docs/FEASIBILITY_ENGINE.md)
 - [Security](docs/SECURITY.md)
 - [Deployment](docs/DEPLOYMENT.md)
+- [Product audit](docs/PRODUCT_AUDIT.md)
+- [Refinement plan](docs/REFINEMENT_PLAN.md)
+- [Refinement report](docs/REFINEMENT_REPORT.md)
 
 ## Teknologi
 

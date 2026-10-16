@@ -111,17 +111,48 @@ export async function deleteMaterialDocument(orgId: string, materialId: string):
   if (!existing) return;
 
   const db = adminDb();
-  await db.collection(COLLECTIONS.materials).doc(materialId).delete();
+  const [photos, jobs, opportunities, outcomes] = await Promise.all([
+    db
+      .collection(COLLECTIONS.materialPhotos)
+      .where('orgId', '==', orgId)
+      .where('materialId', '==', materialId)
+      .get(),
+    db
+      .collection(COLLECTIONS.analysisJobs)
+      .where('orgId', '==', orgId)
+      .where('materialId', '==', materialId)
+      .get(),
+    db
+      .collection(COLLECTIONS.productOpportunities)
+      .where('orgId', '==', orgId)
+      .where('materialId', '==', materialId)
+      .get(),
+    db
+      .collection(COLLECTIONS.productionOutcomes)
+      .where('orgId', '==', orgId)
+      .where('materialId', '==', materialId)
+      .get(),
+  ]);
 
-  const photos = await db
-    .collection(COLLECTIONS.materialPhotos)
-    .where('materialId', '==', materialId)
-    .limit(20)
-    .get();
+  const refs = [
+    ...photos.docs.map((doc) => doc.ref),
+    ...jobs.docs.map((doc) => doc.ref),
+    ...outcomes.docs.map((doc) => doc.ref),
+  ];
+  opportunities.docs.forEach((doc) => {
+    refs.push(doc.ref);
+    refs.push(db.collection(COLLECTIONS.feasibilityResults).doc(doc.id));
+    refs.push(db.collection(COLLECTIONS.costEstimates).doc(doc.id));
+  });
+  // Keep the root document until the end. If a chunk fails, a retry can still
+  // authorize and finish deleting the remaining descendants.
+  refs.push(db.collection(COLLECTIONS.materials).doc(materialId));
 
-  const batch = db.batch();
-  photos.docs.forEach((doc) => batch.delete(doc.ref));
-  await batch.commit();
+  for (let offset = 0; offset < refs.length; offset += 450) {
+    const batch = db.batch();
+    refs.slice(offset, offset + 450).forEach((ref) => batch.delete(ref));
+    await batch.commit();
+  }
 }
 
 // ------------------------------------------------------------------ photographs
