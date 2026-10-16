@@ -133,8 +133,6 @@ export function assertProductionEnv(): void {
   if (isEmulatorMode) return;
 
   const missing: string[] = [];
-  if (!serverConfig.clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
-  if (!serverConfig.privateKey) missing.push('FIREBASE_PRIVATE_KEY');
   if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) missing.push('NEXT_PUBLIC_FIREBASE_API_KEY');
   if (!process.env.NEXT_PUBLIC_FIREBASE_APP_ID) missing.push('NEXT_PUBLIC_FIREBASE_APP_ID');
 

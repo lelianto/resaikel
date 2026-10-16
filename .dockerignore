@@ -1,0 +1,12 @@
+.git
+.github
+.next
+.env*
+.emulator-data
+.playwright-cli
+coverage
+docs
+node_modules
+npm-debug.log*
+serviceAccount*.json
+gha-creds-*.json

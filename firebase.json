@@ -1,4 +1,17 @@
 {
+  "auth": {
+    "providers": {
+      "anonymous": false,
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Resaikel",
+        "supportEmail": "gaweloka@gmail.com",
+        "authorizedRedirectUris": [
+          "https://project-335e22ef-e3a3-4044-813.firebaseapp.com/__/auth/handler"
+        ]
+      }
+    }
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"

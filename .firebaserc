@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "resaikel-dev"
+    "default": "project-335e22ef-e3a3-4044-813",
+    "production": "project-335e22ef-e3a3-4044-813"
   }
 }
