@@ -41,4 +41,15 @@ describe('Cloud Run delivery contract', () => {
     expect(workflow).toContain('--service-account');
     expect(workflow).not.toContain('FIREBASE_PRIVATE_KEY');
   });
+
+  it('injects the Gemini key from Secret Manager and enables the selected live model', () => {
+    const workflow = read('.github/workflows/deploy-cloud-run.yml');
+    expect(workflow).toContain('AI_MODE=live');
+    expect(workflow).toContain('GEMINI_MATERIAL_MODEL=gemini-3.5-flash-lite');
+    expect(workflow).toContain('GEMINI_DISCOVERY_MODEL=gemini-3.5-flash-lite');
+    expect(workflow).toContain('GEMINI_EXPLANATION_MODEL=gemini-3.5-flash-lite');
+    expect(workflow).toContain('AI_DAILY_QUOTA_PER_USER=20');
+    expect(workflow).toContain('--set-secrets "GEMINI_API_KEY=GEMINI_API_KEY:latest"');
+    expect(workflow).not.toContain('GEMINI_API_KEY=AQ.');
+  });
 });

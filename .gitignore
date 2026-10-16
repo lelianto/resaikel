@@ -12,6 +12,8 @@ serviceAccount*.json
 gha-creds-*.json
 
 .emulator-data/
+.firebase-config/
+.runlogs/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log

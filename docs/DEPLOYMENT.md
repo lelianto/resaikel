@@ -76,11 +76,14 @@ them before accepting real users.
 
 The production project, WIF provider, service-account identifiers, and Firebase
 web configuration are committed in the workflow. These are public identifiers,
-not credentials. No GitHub secret is required while `AI_MODE=mock`.
+not credentials. Gemini runs in live mode with `gemini-3.5-flash-lite`; the API
+key is read only from the latest `GEMINI_API_KEY` Secret Manager version. The
+workflow never receives or stores the key as a GitHub secret.
 
-When real Gemini calls are intentionally enabled, add a secret version to
-`GEMINI_API_KEY`, change the workflow to `AI_MODE=live`, and bind the secret to
-Cloud Run. Keeping mock mode initially prevents accidental AI usage charges.
+The application allows at most 20 AI analyses per user per UTC day. This stays
+within the current free-tier allowance for one user, while the provider's
+project-wide RPM, TPM, and RPD limits remain the final authority. Revisit the
+application allowance when the Google AI Studio quota changes.
 
 The workflow is `.github/workflows/deploy-cloud-run.yml`. A GitHub `production`
 environment can optionally require manual approval.

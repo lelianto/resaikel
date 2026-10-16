@@ -45,7 +45,7 @@ Report date: 16 October 2026
 - `tests/domain/outcomes.test.ts`: 3 focused arithmetic tests passed.
 - Firestore and Storage rules validated and published successfully.
 - The `production_outcomes` composite index was created in the production project.
-- `gemini-3.1-flash-lite` was checked against current official Google model documentation and is a
+- `gemini-3.5-flash-lite` was checked against current official Google model documentation and is a
   valid multimodal model with structured-output support. Live usage remains disabled.
 
 ## Known limitations and deferred work

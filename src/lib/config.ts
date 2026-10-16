@@ -76,9 +76,9 @@ export const serverConfig = {
   ai: {
     mode: aiMode,
     apiKey: geminiApiKey,
-    materialModel: process.env.GEMINI_MATERIAL_MODEL?.trim() || 'gemini-3.1-flash-lite',
-    discoveryModel: process.env.GEMINI_DISCOVERY_MODEL?.trim() || 'gemini-3.1-flash-lite',
-    explanationModel: process.env.GEMINI_EXPLANATION_MODEL?.trim() || 'gemini-3.1-flash-lite',
+    materialModel: process.env.GEMINI_MATERIAL_MODEL?.trim() || 'gemini-3.5-flash-lite',
+    discoveryModel: process.env.GEMINI_DISCOVERY_MODEL?.trim() || 'gemini-3.5-flash-lite',
+    explanationModel: process.env.GEMINI_EXPLANATION_MODEL?.trim() || 'gemini-3.5-flash-lite',
     timeoutMs: envNum(process.env.AI_TIMEOUT_MS, 45_000),
     maxAttempts: envNum(process.env.AI_MAX_ATTEMPTS, 3),
     dailyQuotaPerUser: envNum(process.env.AI_DAILY_QUOTA_PER_USER, 50),
