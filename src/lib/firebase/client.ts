@@ -16,7 +16,9 @@ import { emulatorConfig, firebaseClientConfig, isEmulatorMode } from '@/lib/conf
  */
 
 let app: FirebaseApp | null = null;
-let emulatorsConnected = false;
+let authEmulatorConnected = false;
+let firestoreEmulatorConnected = false;
+let storageEmulatorConnected = false;
 
 function firebaseApp(): FirebaseApp {
   if (app) return app;
@@ -26,8 +28,8 @@ function firebaseApp(): FirebaseApp {
 
 export function firebaseAuth(): Auth {
   const auth = getAuth(firebaseApp());
-  if (isEmulatorMode && !emulatorsConnected) {
-    emulatorsConnected = true;
+  if (isEmulatorMode && !authEmulatorConnected) {
+    authEmulatorConnected = true;
     connectAuthEmulator(auth, `http://${emulatorConfig.authHost}:${emulatorConfig.authPort}`, {
       disableWarnings: true,
     });
@@ -37,8 +39,8 @@ export function firebaseAuth(): Auth {
 
 export function firestore(): Firestore {
   const db = getFirestore(firebaseApp());
-  if (isEmulatorMode && !emulatorsConnected) {
-    emulatorsConnected = true;
+  if (isEmulatorMode && !firestoreEmulatorConnected) {
+    firestoreEmulatorConnected = true;
     connectFirestoreEmulator(db, emulatorConfig.firestoreHost, emulatorConfig.firestorePort);
   }
   return db;
@@ -46,8 +48,8 @@ export function firestore(): Firestore {
 
 export function cloudStorage(): FirebaseStorage {
   const storage = getStorage(firebaseApp());
-  if (isEmulatorMode && !emulatorsConnected) {
-    emulatorsConnected = true;
+  if (isEmulatorMode && !storageEmulatorConnected) {
+    storageEmulatorConnected = true;
     connectStorageEmulator(storage, emulatorConfig.storageHost, emulatorConfig.storagePort);
   }
   return storage;
