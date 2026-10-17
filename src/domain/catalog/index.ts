@@ -27,6 +27,22 @@ export function selectableTemplates(families: readonly MaterialFamily[]): Produc
   );
 }
 
+/**
+ * Material families the catalogue can actually turn into products: every family
+ * named by at least one template. Derived from the catalogue itself so adding a
+ * template for a new family (metal, glass, …) opens the gate automatically, with
+ * no second list to keep in sync. This is the single source of truth for "which
+ * materials are supported" across analysis warnings and the discovery gate.
+ */
+export const SUPPORTED_FAMILIES: readonly MaterialFamily[] = [
+  ...new Set(PRODUCT_TEMPLATES.flatMap((template) => template.materialFamilies)),
+];
+
+/** Whether the catalogue can turn this material family into any product yet. */
+export function isSupportedFamily(family: MaterialFamily): boolean {
+  return SUPPORTED_FAMILIES.includes(family);
+}
+
 /** Every template in a given category, regardless of material. */
 export function templatesByCategory(category: ProductTemplate['category']): ProductTemplate[] {
   return PRODUCT_TEMPLATES.filter((template) => template.category === category);

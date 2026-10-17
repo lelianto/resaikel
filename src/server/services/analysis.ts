@@ -2,12 +2,15 @@ import { AiError } from '@/ai/errors';
 import { analysisInputHash } from '@/ai/cache';
 import { AI_PROMPT_VERSION, type MaterialAnalysis } from '@/ai/schemas';
 import { analyzeMaterial } from '@/ai/service';
+import { isSupportedFamily, SUPPORTED_FAMILIES } from '@/domain/catalog';
 import { nowIso, SCHEMA_VERSION } from '@/domain/common';
 import { newRequestId } from '@/domain/ids';
 import type { AuthContext } from '@/domain/identity/types';
+import { familyOf, MATERIAL_FAMILY_LABELS } from '@/domain/materials/types';
 import type {
   MaterialAttributeKey,
   MaterialCategory,
+  MaterialFamily,
   ProvenanceMap,
 } from '@/domain/materials/types';
 import { serverConfig } from '@/lib/config';
@@ -91,12 +94,30 @@ function missingInformationFor(
   return [...items];
 }
 
+/** Human-readable list of the families the catalogue can build from. */
+function supportedFamiliesSentence(): string {
+  const labels = SUPPORTED_FAMILIES.map((family) => MATERIAL_FAMILY_LABELS[family].toLowerCase());
+  if (labels.length <= 1) return labels.join('');
+  return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
+}
+
 function warningsFor(
   analysis: MaterialAnalysis,
   unsupportedClaims: readonly string[],
   mock: boolean,
+  family: MaterialFamily,
 ): string[] {
   const warnings = [...analysis.warnings, ...analysis.reuseRestrictions];
+
+  // Gate on what the catalogue can actually make, not on what the model can see.
+  // `unknown` is handled by `missingInformation` (the user must pick a category).
+  if (family !== 'unknown' && !isSupportedFamily(family)) {
+    warnings.push(
+      `This looks like ${MATERIAL_FAMILY_LABELS[family].toLowerCase()}. The platform can currently ` +
+        `turn only ${supportedFamiliesSentence()} into products, so no product opportunities can be ` +
+        'generated from it yet. You can still catalogue it.',
+    );
+  }
 
   if (unsupportedClaims.length > 0) {
     warnings.push(
@@ -156,12 +177,16 @@ function materialPatchFromAnalysis(input: {
   adopt('contamination', [...analysis.contamination]);
   adopt('defects', [...analysis.defects]);
 
+  // Warn on the category that actually survived the merge: a human-confirmed
+  // category wins over the model's, so the support check must use `attributes`.
+  const family = familyOf(attributes.category);
+
   return {
     attributes,
     provenance,
     status: 'needs_confirmation',
     missingInformation: missingInformationFor(material, analysis),
-    warnings: warningsFor(analysis, input.unsupportedClaims, input.mock),
+    warnings: warningsFor(analysis, input.unsupportedClaims, input.mock, family),
     updatedAt: nowIso(),
   };
 }

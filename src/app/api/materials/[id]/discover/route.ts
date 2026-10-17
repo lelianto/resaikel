@@ -15,6 +15,8 @@ import {
   type CapabilitySummary,
 } from '@/server/services/discovery';
 import { checkConfirmable, loadMaterialWithPhotos } from '@/server/services/materials';
+import { isSupportedFamily, SUPPORTED_FAMILIES } from '@/domain/catalog';
+import { familyOf, MATERIAL_FAMILY_LABELS } from '@/domain/materials/types';
 
 /**
  * POST /api/materials/:id/discover
@@ -37,6 +39,18 @@ export const POST = authedRoute<{ id: string }>(async ({ auth, params, request, 
       'Confirm the material’s properties before discovering products. A photograph cannot establish ' +
         'dimensions, and an unconfirmed value blocks evaluation.',
       { details: { blocking: confirmation.blocking } },
+    );
+  }
+
+  // The catalogue only has templates for some material families. Fail loudly here
+  // rather than running the whole pipeline to return nothing buildable.
+  const family = familyOf(material.attributes.category);
+  if (!isSupportedFamily(family)) {
+    throw new HttpError(
+      'MATERIAL_FAMILY_UNSUPPORTED',
+      `The platform cannot yet turn ${MATERIAL_FAMILY_LABELS[family].toLowerCase()} into products. ` +
+        `Supported materials: ${SUPPORTED_FAMILIES.map((entry) => MATERIAL_FAMILY_LABELS[entry]).join(', ')}.`,
+      { details: { family, supportedFamilies: SUPPORTED_FAMILIES } },
     );
   }
 
