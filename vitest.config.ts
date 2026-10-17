@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
@@ -10,6 +10,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    // Security-rules tests need the Firestore emulator, so they run through their
+    // own config (`npm run test:rules`), never in the default suite.
+    exclude: [...configDefaults.exclude, 'tests/rules/**'],
     // Force the deterministic mock adapter so the suite never calls Gemini and
     // never costs anything. Must be set before any module reads the config.
     env: {

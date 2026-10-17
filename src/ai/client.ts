@@ -50,23 +50,28 @@ export interface GenerateJsonResult {
   readonly durationMs: number;
 }
 
-interface CachedClient {
-  readonly apiKey: string;
-  readonly client: GoogleGenAI;
+/**
+ * SDK clients cached per API key, so a hot route does not build a new client
+ * per request and so each configured key (primary plus fallbacks) keeps its own
+ * cached client. The keys never leave this module.
+ */
+const clientCache = new Map<string, GoogleGenAI>();
+
+function getClientFor(apiKey: string): GoogleGenAI {
+  let client = clientCache.get(apiKey);
+  if (!client) {
+    client = new GoogleGenAI({ apiKey });
+    clientCache.set(apiKey, client);
+  }
+  return client;
 }
 
-let cached: CachedClient | null = null;
-
-function getClient(): GoogleGenAI {
-  const apiKey = serverConfig.ai.apiKey;
-  if (!apiKey) {
+function getApiKeys(): readonly string[] {
+  const apiKeys = serverConfig.ai.apiKeys;
+  if (apiKeys.length === 0) {
     throw new AiError('AI_NOT_CONFIGURED', 'GEMINI_API_KEY is not set.', { retryable: false });
   }
-  if (cached && cached.apiKey === apiKey) return cached.client;
-
-  const client = new GoogleGenAI({ apiKey });
-  cached = { apiKey, client };
-  return client;
+  return apiKeys;
 }
 
 const EMPTY_USAGE: AiUsage = { inputTokens: null, outputTokens: null, totalTokens: null };
@@ -174,8 +179,24 @@ function buildParts(request: GenerateJsonRequest): unknown[] {
   return parts;
 }
 
-async function callOnce(request: GenerateJsonRequest): Promise<GenerateJsonResult> {
-  const client = getClient();
+/**
+ * Whether a failure means this key is spent and the next one should be tried.
+ * A rate limit (or exhausted quota) is the common case; a revoked, invalid or
+ * disabled key is also worth failing over, since another key may still work.
+ */
+function shouldFailOverToNextKey(error: AiError): boolean {
+  if (error.code === 'AI_RATE_LIMITED') return true;
+  if (error.code !== 'AI_UNAVAILABLE') return false;
+  const detail = (error.causeDetail ?? '').toLowerCase();
+  return /api[_\s]?key|permission[_\s]?denied|unauthenticated|invalid.*credential|forbidden|\b401\b|\b403\b/.test(
+    detail,
+  );
+}
+
+async function callOnce(
+  request: GenerateJsonRequest,
+  client: GoogleGenAI,
+): Promise<GenerateJsonResult> {
   const timeoutMs = request.timeoutMs ?? serverConfig.ai.timeoutMs;
   const startedAt = Date.now();
 
@@ -228,18 +249,33 @@ async function callOnce(request: GenerateJsonRequest): Promise<GenerateJsonResul
 
 export async function generateJson(request: GenerateJsonRequest): Promise<GenerateJsonResult> {
   const maxAttempts = Math.max(1, request.maxAttempts ?? serverConfig.ai.maxAttempts);
+  const apiKeys = getApiKeys();
   let lastError: AiError | null = null;
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      const result = await callOnce(request);
-      return { ...result, attempts: attempt };
-    } catch (error) {
-      const classified = error instanceof AiError ? error : classify(error, request.operation);
-      lastError = classified;
+  // Outer loop: each configured key in order (primary first, then fallbacks).
+  // When a key is rate limited or rejected it is abandoned for the rest of this
+  // request and the next key is tried immediately, so one exhausted quota does
+  // not fail the whole operation. The `attempts` count reported back is the
+  // number of tries on the key that ultimately answered.
+  for (let keyIndex = 0; keyIndex < apiKeys.length; keyIndex += 1) {
+    const client = getClientFor(apiKeys[keyIndex]!);
+    const hasNextKey = keyIndex < apiKeys.length - 1;
 
-      if (!classified.retryable || attempt === maxAttempts) throw classified;
-      await delay(backoffMs(attempt));
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const result = await callOnce(request, client);
+        return { ...result, attempts: attempt };
+      } catch (error) {
+        const classified = error instanceof AiError ? error : classify(error, request.operation);
+        lastError = classified;
+
+        // Exhausted or rejected key: stop retrying it and fall back to the next
+        // key (if any) without burning this key's remaining backoff attempts.
+        if (hasNextKey && shouldFailOverToNextKey(classified)) break;
+
+        if (!classified.retryable || attempt === maxAttempts) throw classified;
+        await delay(backoffMs(attempt));
+      }
     }
   }
 

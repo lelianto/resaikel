@@ -52,13 +52,37 @@ function parseAiMode(raw: string | undefined): AiMode {
 }
 
 const aiMode = parseAiMode(process.env.AI_MODE);
-const geminiApiKey = process.env.GEMINI_API_KEY?.trim() ?? '';
+
+/**
+ * Parses an ordered, de-duplicated list of Gemini API keys from one or more
+ * environment variables. Each variable may itself hold several keys separated
+ * by commas, so both `GEMINI_API_KEY=a,b` and a dedicated fallback variable
+ * work. The order is preserved: the first key is the primary, the rest are
+ * tried in turn when the primary is rate limited or rejected.
+ */
+function parseApiKeys(...raw: (string | undefined)[]): readonly string[] {
+  const keys: string[] = [];
+  for (const entry of raw) {
+    if (!entry) continue;
+    for (const part of entry.split(',')) {
+      const key = part.trim();
+      if (key.length > 0 && !keys.includes(key)) keys.push(key);
+    }
+  }
+  return keys;
+}
+
+const geminiApiKeys = parseApiKeys(
+  process.env.GEMINI_API_KEY,
+  process.env.GEMINI_API_KEY_FALLBACKS,
+);
+const geminiApiKey = geminiApiKeys[0] ?? '';
 
 /** True when a real Gemini request should be attempted. */
 export function isAiLive(): boolean {
   if (aiMode === 'mock') return false;
   if (aiMode === 'live') return true;
-  return geminiApiKey.length > 0;
+  return geminiApiKeys.length > 0;
 }
 
 export const serverConfig = {
@@ -75,7 +99,10 @@ export const serverConfig = {
 
   ai: {
     mode: aiMode,
+    /** Primary key; kept for callers that only need a single key. */
     apiKey: geminiApiKey,
+    /** Primary key followed by any fallbacks, tried in order. */
+    apiKeys: geminiApiKeys,
     materialModel: process.env.GEMINI_MATERIAL_MODEL?.trim() || 'gemini-3.5-flash-lite',
     discoveryModel: process.env.GEMINI_DISCOVERY_MODEL?.trim() || 'gemini-3.5-flash-lite',
     explanationModel: process.env.GEMINI_EXPLANATION_MODEL?.trim() || 'gemini-3.5-flash-lite',

@@ -93,6 +93,13 @@ never depends on network or quota during judging.
   fake (`tests/support/fake-firestore.ts`) so it runs without the emulator. This proves
   the application code wires together; **security rules and composite indexes still need
   the emulator** and remain unproven in CI.
+  **Verification kit added (17 Oct 2026):** `npm run test:rules` (emulator-backed rules
+  tests for tenant isolation + write lockout) and `npm run check:indexes` (runs every
+  query shape against a real project to surface missing composite indexes). Runbook:
+  `docs/RULES_AND_INDEX_VERIFICATION.md`. These must be run locally/against a project —
+  the emulator does not start in the CI sandbox used here, so they are not yet wired into
+  automated CI. The static index audit flags six query shapes with no matching index in
+  `firestore.indexes.json` to confirm against the live project.
 - Transitive dependency advisories pending a major-upgrade migration.
 
 ## Strengths to lean into during the pitch
