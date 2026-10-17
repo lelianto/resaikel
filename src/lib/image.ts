@@ -8,6 +8,11 @@
  * ceiling of 1600 px on the long edge keeps enough detail to judge surface,
  * texture and defects while cutting typical uploads by an order of magnitude.
  *
+ * The re-encode targets WebP, which is meaningfully smaller than JPEG at the same
+ * visual quality. Browsers that cannot encode WebP from a canvas silently fall
+ * back to PNG; that is detected and JPEG is used instead, so the upload is always
+ * a compressed lossy format.
+ *
  * Compression never *increases* the file size: if the re-encode would be larger
  * than the original, the original is uploaded instead.
  */
@@ -22,14 +27,43 @@ export const ALLOWED_IMAGE_TYPES = [
 
 export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
+/** The content types the storage rules and server validation accept. */
+export type UploadMimeType =
+  | 'image/webp'
+  | 'image/jpeg'
+  | 'image/png'
+  | 'image/heic'
+  | 'image/heif';
+
+const DECLARABLE_TYPES = new Set<string>([
+  'image/webp',
+  'image/jpeg',
+  'image/png',
+  'image/heic',
+  'image/heif',
+]);
+
+const EXTENSION_BY_TYPE: Record<UploadMimeType, string> = {
+  'image/webp': 'webp',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
+};
+
 export interface CompressedImage {
   readonly blob: Blob;
   readonly width: number;
   readonly height: number;
-  readonly mimeType: 'image/jpeg';
+  readonly mimeType: UploadMimeType;
   readonly fileName: string;
   readonly originalBytes: number;
   readonly compressed: boolean;
+}
+
+/** File extension (no dot) for an upload content type, defaulting to `jpg`. */
+export function extensionForMimeType(mimeType: string): string {
+  return EXTENSION_BY_TYPE[mimeType as UploadMimeType] ?? 'jpg';
 }
 
 export class ImagePreparationError extends Error {
@@ -87,6 +121,17 @@ async function loadImage(file: File): Promise<LoadedImage> {
   }
 }
 
+/** Encodes a canvas to a Blob of the requested type, or null on failure. */
+function encodeCanvas(
+  canvas: HTMLCanvasElement,
+  type: 'image/webp' | 'image/jpeg',
+  quality: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    canvas.toBlob((result) => resolve(result), type, quality);
+  });
+}
+
 export function validateImageFile(file: File): string | null {
   if (file.size === 0) return 'That file is empty.';
   if (file.size > MAX_UPLOAD_BYTES) {
@@ -124,14 +169,21 @@ export async function compressImageFile(
       throw new ImagePreparationError('This browser cannot prepare images for upload.');
     }
 
-    // A white matte avoids transparent PNG regions turning black in JPEG.
+    // A white matte avoids transparent PNG regions turning black once the alpha
+    // channel is dropped by a lossy re-encode.
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, width, height);
     context.drawImage(loaded.source, 0, 0, width, height);
 
-    const blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob((result) => resolve(result), 'image/jpeg', quality);
-    });
+    // Prefer WebP; it is smaller than JPEG at the same quality. A browser that
+    // cannot encode WebP from a canvas returns a different type (usually PNG),
+    // so fall back to JPEG whenever the WebP encode did not actually happen.
+    let blob = await encodeCanvas(canvas, 'image/webp', quality);
+    let mimeType: UploadMimeType = 'image/webp';
+    if (!blob || blob.type !== 'image/webp') {
+      blob = await encodeCanvas(canvas, 'image/jpeg', quality);
+      mimeType = 'image/jpeg';
+    }
 
     if (!blob) {
       throw new ImagePreparationError('This browser could not encode the image.');
@@ -143,7 +195,7 @@ export async function compressImageFile(
         blob: file,
         width: loaded.width,
         height: loaded.height,
-        mimeType: 'image/jpeg',
+        mimeType: DECLARABLE_TYPES.has(file.type) ? (file.type as UploadMimeType) : 'image/jpeg',
         fileName: file.name,
         originalBytes: file.size,
         compressed: false,
@@ -156,8 +208,8 @@ export async function compressImageFile(
       blob,
       width,
       height,
-      mimeType: 'image/jpeg',
-      fileName: `${baseName}.jpg`,
+      mimeType,
+      fileName: `${baseName}.${extensionForMimeType(mimeType)}`,
       originalBytes: file.size,
       compressed: true,
     };

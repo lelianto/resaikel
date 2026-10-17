@@ -23,6 +23,7 @@ import {
   ImagePreparationError,
   compressImageFile,
   dedupeFiles,
+  extensionForMimeType,
   formatBytes,
   validateImageFile,
   type CompressedImage,
@@ -52,6 +53,44 @@ interface DraftPhoto {
 }
 
 const MAX_PHOTOS = 4;
+
+/**
+ * Turns a direct-to-storage upload failure into a message that points at the
+ * actual cause. Firebase throws a `StorageError` carrying a `storage/*` code;
+ * surfacing it (and logging the raw error) is the difference between a
+ * diagnosable problem and an opaque "it didn't work".
+ */
+function describeUploadError(caught: unknown): string {
+  console.error('Photo upload failed', caught);
+
+  const code =
+    typeof caught === 'object' && caught !== null && 'code' in caught
+      ? String((caught as { code: unknown }).code)
+      : null;
+
+  switch (code) {
+    case 'storage/unauthorized':
+      return 'Upload refused: you do not have permission to store photos here. Sign in again and retry.';
+    case 'storage/unauthenticated':
+      return 'Upload refused because your session expired. Sign in again and retry.';
+    case 'storage/quota-exceeded':
+      return 'Upload failed: the storage bucket is out of space.';
+    case 'storage/retry-limit-exceeded':
+      return 'The upload timed out. Check your connection and try again.';
+    case 'storage/canceled':
+      return 'The upload was cancelled.';
+    case 'storage/unknown':
+      return 'The upload could not reach storage. This is usually a bucket or CORS configuration problem.';
+    default:
+      break;
+  }
+
+  if (code) return `The upload did not complete (${code}).`;
+  if (caught instanceof Error && caught.message) {
+    return `The upload did not complete: ${caught.message}`;
+  }
+  return 'The upload did not complete.';
+}
 
 export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) {
   const router = useRouter();
@@ -199,7 +238,7 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
       );
 
       const blob = compressed.blob;
-      const extension = 'jpg';
+      const extension = extensionForMimeType(compressed.mimeType);
       const storagePath = `${uploadPathPrefix}/photo_${index + 1}_${Math.random()
         .toString(36)
         .slice(2, 10)}.${extension}`;
@@ -246,9 +285,7 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
                   ...entry,
                   status: 'failed',
                   message:
-                    caught instanceof ApiError
-                      ? caught.message
-                      : 'The upload did not complete.',
+                    caught instanceof ApiError ? caught.message : describeUploadError(caught),
                 }
               : entry,
           ),

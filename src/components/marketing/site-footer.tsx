@@ -19,7 +19,10 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-surface">
-      <Container width="wide" className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
+      <Container
+        width="wide"
+        className="grid gap-8 py-10 sm:grid-cols-2 sm:gap-10 sm:py-12 lg:grid-cols-4"
+      >
         <div className="space-y-3">
           <Logo />
           <p className="max-w-xs text-sm leading-relaxed text-ink-muted">
@@ -57,10 +60,10 @@ export function SiteFooter() {
 
       <Container
         width="wide"
-        className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-5"
+        className="flex flex-col gap-1 border-t border-line py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
       >
-        <p className="micro-label">resaikel | turn waste into worth</p>
-        <p className="micro-label">Built for circular manufacturing</p>
+        <p className="micro-label">© {new Date().getFullYear()} resaikel</p>
+        <p className="micro-label text-ink-faint">Turn waste into worth</p>
       </Container>
     </footer>
   );
