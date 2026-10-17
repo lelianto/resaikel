@@ -9,7 +9,7 @@ const CONTROL_BASE =
 function controlState(invalid: boolean): string {
   return invalid
     ? 'border-danger focus:border-danger'
-    : 'border-line-strong hover:border-[#aeb4a6] focus:border-primary';
+    : 'border-line-strong hover:border-[#c6b08f] focus:border-primary';
 }
 
 export interface FieldProps {

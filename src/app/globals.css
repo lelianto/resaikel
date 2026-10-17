@@ -1,38 +1,48 @@
 @import 'tailwindcss';
 
 /*
- * resaikel design tokens.
+ * resaikel design tokens — the "Reka" brand palette.
  *
- * "Modern Material Intelligence Studio": warm industrial surfaces, deep green
- * primary, brass accent, restrained radii, technical monospace metadata.
- * Everything downstream references these variables, so the palette can be
- * retuned in one place.
+ * Drawn directly from Reka, the bowerbird mascot: deep pine-teal plumage as the
+ * primary, a warm orange beak/feet accent, golden-yellow feather highlights, and
+ * kraft-paper + cream surfaces (the reclaimed parcel it carries). Restrained
+ * radii and technical monospace metadata keep the "measured, never guessed"
+ * character. Everything downstream references these variables, so the whole
+ * identity can be retuned in one place.
  */
 @theme {
-  /* surfaces */
-  --color-canvas: #fffdfb;
+  /* surfaces — cream + kraft paper */
+  --color-canvas: #fcf9f3;
   --color-surface: #ffffff;
-  --color-surface-subtle: #f7f1ed;
-  --color-surface-sunken: #fff5ef;
-  --color-line: #eadfd9;
-  --color-line-strong: #d7c6be;
+  --color-surface-subtle: #f4ece0;
+  --color-surface-sunken: #f8f1e7;
+  --color-line: #e7dccb;
+  --color-line-strong: #d4c3ac;
 
-  /* text */
-  --color-ink: #2b1712;
-  --color-ink-muted: #746965;
-  --color-ink-faint: #9a8e89;
+  /* text — warm pine-brown ink */
+  --color-ink: #231a12;
+  --color-ink-muted: #6f6355;
+  --color-ink-faint: #9b8d7b;
   --color-ink-inverse: #ffffff;
 
-  /* primary action */
-  --color-primary: #0ea5a3;
-  --color-primary-hover: #0b8887;
-  --color-primary-soft: #dff5f2;
-  --color-primary-ring: #0ea5a3;
+  /* primary action — Reka's deep pine-teal */
+  --color-primary: #0f7a73;
+  --color-primary-hover: #0b5f59;
+  --color-primary-soft: #dcefec;
+  --color-primary-wash: #eaf4f2;
+  --color-primary-ring: #0f7a73;
 
-  /* brass accent */
-  --color-accent: #ff8b6a;
-  --color-accent-soft: #fff0e9;
-  --color-accent-ink: #6e2f22;
+  /* accent — warm orange (beak + feet) */
+  --color-accent: #f0792e;
+  --color-accent-hover: #db6a24;
+  --color-accent-soft: #fde9da;
+  --color-accent-wash: #fdf1e7;
+  --color-accent-ink: #7c3310;
+
+  /* gold — feather highlights, for brand flourishes */
+  --color-gold: #d99a2b;
+  --color-gold-soft: #f7ecd2;
+  --color-gold-ink: #6b4a12;
 
   /* semantic */
   --color-danger: #a5473d;
@@ -206,14 +216,15 @@
   }
 
   .playful-dots {
-    background-image: radial-gradient(rgb(14 165 163 / 0.16) 1.5px, transparent 1.5px);
+    background-image: radial-gradient(rgb(15 122 115 / 0.16) 1.5px, transparent 1.5px);
     background-size: 18px 18px;
   }
 
   .warm-orbit {
     background:
-      radial-gradient(circle at 18% 25%, rgb(255 139 106 / 0.22), transparent 22%),
-      radial-gradient(circle at 82% 70%, rgb(14 165 163 / 0.18), transparent 24%);
+      radial-gradient(circle at 18% 25%, rgb(240 121 46 / 0.20), transparent 22%),
+      radial-gradient(circle at 82% 70%, rgb(15 122 115 / 0.16), transparent 24%),
+      radial-gradient(circle at 60% 8%, rgb(217 154 43 / 0.12), transparent 20%);
   }
 
   /* Skeleton shimmer used by loading states. */

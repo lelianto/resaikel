@@ -98,12 +98,18 @@ export function AppShell({
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
+                  'relative flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
                   active
                     ? 'bg-primary-soft font-medium text-primary'
                     : 'text-ink-muted hover:bg-surface-subtle hover:text-ink',
                 )}
               >
+                {active ? (
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-primary"
+                  />
+                ) : null}
                 <Icon className="size-4 shrink-0" aria-hidden />
                 {item.label}
               </Link>

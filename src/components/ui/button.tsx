@@ -11,8 +11,8 @@ const BASE =
   'transition-all duration-150 disabled:pointer-events-none disabled:opacity-45 active:translate-y-px';
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-ink-inverse shadow-[0_6px_18px_-10px_rgb(14_165_163/0.85)] hover:bg-primary-hover hover:-translate-y-0.5',
-  accent: 'bg-accent text-ink hover:brightness-[0.97] hover:-translate-y-0.5',
+  primary: 'bg-primary text-ink-inverse shadow-[0_6px_18px_-10px_rgb(15_122_115/0.85)] hover:bg-primary-hover hover:-translate-y-0.5',
+  accent: 'bg-accent text-ink shadow-[0_6px_18px_-10px_rgb(240_121_46/0.85)] hover:bg-accent-hover hover:-translate-y-0.5',
   outline: 'border border-line-strong bg-surface text-ink hover:border-primary/35 hover:bg-primary-soft/40 hover:-translate-y-0.5',
   ghost: 'text-ink-muted hover:bg-surface-subtle hover:text-ink',
   danger: 'bg-danger text-ink-inverse hover:brightness-[0.93]',

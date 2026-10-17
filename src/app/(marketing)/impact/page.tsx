@@ -27,7 +27,7 @@ const NOT_CLAIMED = [
 export default function ImpactPage() {
   return (
     <>
-      <section className="border-b border-line bg-[#eefaf8] py-16 sm:py-24">
+      <section className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide">
           <PageHeader
             eyebrow="Impact"

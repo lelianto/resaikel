@@ -19,7 +19,7 @@ const COMMUNITY_AREAS = [
 export default function CommunityPage() {
   return (
     <>
-      <section className="border-b border-line bg-[#fff4ef] py-16 sm:py-24">
+      <section className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide">
           <PageHeader
             eyebrow="Community"

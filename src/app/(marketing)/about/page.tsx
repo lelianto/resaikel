@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="border-b border-line bg-[#eefaf8] py-16 sm:py-24">
+      <section className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide" className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <PageHeader
             eyebrow="About"

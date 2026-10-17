@@ -132,7 +132,7 @@ export default function LandingPage() {
             </div>
 
             <div className="relative min-h-[31rem] sm:min-h-[35rem]">
-              <div className="absolute inset-x-0 top-0 rounded-[2rem] border border-line bg-[#fff8f3] p-4 shadow-raised sm:left-4 sm:right-0 sm:p-6">
+              <div className="absolute inset-x-0 top-0 rounded-[2rem] border border-line bg-accent-wash p-4 shadow-raised sm:left-4 sm:right-0 sm:p-6">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <span className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Reka found a fit</span>
@@ -184,7 +184,7 @@ export default function LandingPage() {
         </Container>
       </section>
 
-      <div className="overflow-hidden border-b border-[#087b7a] bg-primary py-3 text-white">
+      <div className="overflow-hidden border-b border-primary-hover bg-primary py-3 text-white">
         <p className="whitespace-nowrap text-center text-xs font-semibold tracking-[0.12em]">
           MATERIALS IN · FEASIBILITY CHECKED · COSTS EXPLAINED · BUYERS MATCHED · NO FIGURES INVENTED
         </p>
@@ -204,7 +204,7 @@ export default function LandingPage() {
       </section>
 
       {/* --------------------------------------------------- how it works */}
-      <section id="intelligence" className="border-b border-line bg-[#fff4ef] py-16 sm:py-24">
+      <section id="intelligence" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <SectionRule index="02" label="Five kinds of intelligence" />
           <SectionHeading
@@ -234,7 +234,7 @@ export default function LandingPage() {
       </section>
 
       {/* -------------------------------------------------------- examples */}
-      <section id="examples" className="border-b border-line bg-[#eefaf8] py-16 sm:py-24">
+      <section id="examples" className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <SectionRule index="03" label="Material to product" />
           <SectionHeading
@@ -316,7 +316,7 @@ export default function LandingPage() {
       </section>
 
       {/* ----------------------------------------------------- sustainability */}
-      <section className="border-b border-line bg-[#fff4ef] py-16 sm:py-24">
+      <section className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <SectionHeading
             eyebrow="Sustainability"

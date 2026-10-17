@@ -3,7 +3,9 @@ import { cn } from '@/lib/cn';
 /**
  * resaikel's mark is a nesting diagram: a stock rectangle with three parts laid
  * out inside it. It is the product's actual subject matter rather than an
- * abstract logo, which is why it survives at 16px.
+ * abstract logo, which is why it survives at 16px. The pine-teal parts carry
+ * Reka's plumage; one part is picked out in the mascot's feather-gold — the
+ * reclaimed piece that found a new use.
  */
 export function NestingMark({
   size = 22,
@@ -32,8 +34,8 @@ export function NestingMark({
         opacity="0.35"
       />
       <rect x="4.5" y="4.5" width="8.5" height="9" fill="currentColor" opacity="0.9" />
-      <rect x="15.5" y="4.5" width="4" height="15" fill="currentColor" opacity="0.55" />
-      <rect x="4.5" y="16" width="8.5" height="3.5" fill="currentColor" opacity="0.35" />
+      <rect x="15.5" y="4.5" width="4" height="15" fill="var(--color-gold)" opacity="0.95" />
+      <rect x="4.5" y="16" width="8.5" height="3.5" fill="currentColor" opacity="0.4" />
     </svg>
   );
 }

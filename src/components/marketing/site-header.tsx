@@ -26,6 +26,9 @@ export function SiteHeader() {
     setOpen(false);
   }, [pathname]);
 
+  const isActive = (href: string): boolean =>
+    href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-xl">
       <Container width="wide" className="flex h-14 items-center justify-between gap-6">
@@ -38,15 +41,24 @@ export function SiteHeader() {
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-full px-3.5 py-2 text-[0.8125rem] font-medium text-ink-muted transition-colors hover:bg-primary-soft hover:text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'rounded-full px-3.5 py-2 text-[0.8125rem] font-medium transition-colors',
+                  active
+                    ? 'bg-primary-soft text-primary'
+                    : 'text-ink-muted hover:bg-primary-soft hover:text-primary',
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -78,16 +90,25 @@ export function SiteHeader() {
         )}
       >
         <Container width="wide" className="flex flex-col gap-1 py-3">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="rounded-sm px-3 py-2.5 text-sm text-ink-muted transition-colors hover:bg-surface-subtle hover:text-ink"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'rounded-sm px-3 py-2.5 text-sm transition-colors',
+                  active
+                    ? 'bg-primary-soft font-medium text-primary'
+                    : 'text-ink-muted hover:bg-surface-subtle hover:text-ink',
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Link href="/materials/new" className="pt-2" onClick={() => setOpen(false)}>
             <Button fullWidth>Scan material</Button>
           </Link>
