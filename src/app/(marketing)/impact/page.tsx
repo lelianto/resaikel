@@ -70,9 +70,14 @@ export default function ImpactPage() {
             <h2 className="text-2xl font-semibold text-white">Start with one material record.</h2>
             <p className="mt-2 max-w-2xl text-sm text-white/75">Confirmed inputs are the beginning of every useful impact measurement.</p>
           </div>
-          <Link href="/materials/new">
-            <Button variant="accent" iconRight={<ArrowRight className="size-4" aria-hidden />}>Scan material</Button>
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/circularity">
+              <Button variant="accent" iconRight={<ArrowRight className="size-4" aria-hidden />}>View your impact</Button>
+            </Link>
+            <Link href="/materials/new">
+              <Button variant="outline" className="border-white/40 text-white hover:bg-white/10">Scan material</Button>
+            </Link>
+          </div>
         </Container>
       </section>
     </>

@@ -4,6 +4,7 @@ import {
   Boxes,
   Compass,
   LayoutDashboard,
+  Leaf,
   LogOut,
   Settings,
   Sparkle,
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { href: '/materials', label: 'Materials', mobileLabel: 'Materials', icon: Boxes },
   { href: '/discover', label: 'Discover', mobileLabel: 'Discover', icon: Compass },
   { href: '/opportunities', label: 'Opportunities', mobileLabel: 'Results', icon: Sparkle },
+  { href: '/circularity', label: 'Impact', mobileLabel: 'Impact', icon: Leaf },
   { href: '/workspace', label: 'Workspace', mobileLabel: 'Workshop', icon: Wrench },
 ] as const;
 
@@ -151,7 +153,7 @@ export function AppShell({
         {/* Mobile bottom navigation */}
         <nav
           aria-label="Primary"
-          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_18px_rgb(32_39_32_/_0.06)] backdrop-blur-md lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_18px_rgb(32_39_32_/_0.06)] backdrop-blur-md lg:hidden"
         >
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;

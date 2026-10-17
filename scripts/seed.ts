@@ -24,8 +24,14 @@ import { fileURLToPath } from 'node:url';
 import { evaluateMaterial } from '../src/server/services/discovery';
 import { detectImageType } from '../src/server/firebase/storage';
 import { adminAuth, adminBucket, adminDb, COLLECTIONS } from '../src/server/firebase/admin';
-import { memberDocId } from '../src/domain/ids';
+import { memberDocId, newRequestId } from '../src/domain/ids';
 import { nowIso, SCHEMA_VERSION } from '../src/domain/common';
+import { computeProductionOutcome } from '../src/domain/outcomes/engine';
+import type {
+  ProductionCostLines,
+  ProductionOutcomeDocument,
+} from '../src/domain/outcomes/types';
+import type { OpportunityDocument } from '../src/domain/opportunity/types';
 import { PRODUCT_TEMPLATES } from '../src/domain/catalog/templates';
 import { SAMPLE_MARKET_EVIDENCE } from '../src/domain/demo/market-evidence';
 import { sampleScenarios } from '../src/domain/demo/sample-scenarios';
@@ -505,6 +511,144 @@ async function runDiscoveryForSeedMaterials(): Promise<void> {
   }
 }
 
+/** A whole number of days before now, as an ISO timestamp. */
+function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString();
+}
+
+/**
+ * Splits a batch cost across the five production cost lines so the parts sum
+ * back to the exact total. Labour absorbs the rounding remainder, so no minor
+ * unit is invented or lost — the same discipline the cost engine uses.
+ */
+function splitCost(totalMinor: number): ProductionCostLines {
+  const additionalMaterialsMinor = Math.round(totalMinor * 0.1);
+  const overheadMinor = Math.round(totalMinor * 0.2);
+  const packagingMinor = Math.round(totalMinor * 0.1);
+  const otherMinor = Math.round(totalMinor * 0.05);
+  const labourMinor =
+    totalMinor - additionalMaterialsMinor - overheadMinor - packagingMinor - otherMinor;
+  return { additionalMaterialsMinor, labourMinor, overheadMinor, packagingMinor, otherMinor };
+}
+
+function unitRevenueMinor(summary: OpportunityDocument['summary']): number {
+  return (
+    summary.referencePriceMinor ??
+    summary.minViablePriceMinor ??
+    (summary.unitCostMinor !== null ? Math.round(summary.unitCostMinor * 1.8) : 60_000)
+  );
+}
+
+interface OutcomeRunSpec {
+  readonly daysAgo: number;
+  readonly manufactured: number;
+  readonly sold: number;
+  readonly consumed: number;
+  readonly waste: number;
+}
+
+/** One realised opportunity per scenario, each with a few completed runs. */
+const OUTCOME_PLAN: Record<string, readonly OutcomeRunSpec[]> = {
+  'plywood-offcuts': [
+    { daysAgo: 48, manufactured: 6, sold: 4, consumed: 2, waste: 0.5 },
+    { daysAgo: 15, manufactured: 8, sold: 8, consumed: 1.5, waste: 0.25 },
+  ],
+  'cardboard-waste': [{ daysAgo: 30, manufactured: 20, sold: 14, consumed: 4, waste: 1 }],
+};
+
+async function seedProductionOutcomes(uid: string): Promise<void> {
+  const db = adminDb();
+  const scenarios = sampleScenarios();
+  let runs = 0;
+
+  for (const scenario of scenarios) {
+    const plan = OUTCOME_PLAN[scenario.id];
+    if (!plan) continue;
+
+    const materialId = `sample_${scenario.id.replace(/-/g, '_')}`;
+    const materialSnapshot = await db.collection(COLLECTIONS.materials).doc(materialId).get();
+    const materialUnit =
+      (materialSnapshot.data()?.quantity?.unit as string | undefined) ?? 'sheet';
+
+    const oppSnapshot = await db
+      .collection(COLLECTIONS.productOpportunities)
+      .where('orgId', '==', DEMO_ORG_ID)
+      .where('materialId', '==', materialId)
+      .get();
+
+    const viable = oppSnapshot.docs
+      .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<OpportunityDocument, 'id'>) }))
+      .filter((opp) => opp.ranking?.gatesPassed === true)
+      .sort((a, b) => (b.ranking?.score ?? 0) - (a.ranking?.score ?? 0));
+
+    const opportunity = viable[0];
+    if (!opportunity) {
+      log(`outcomes: ${scenario.id} has no viable opportunity yet; skipped`);
+      continue;
+    }
+
+    // Mark the realised opportunity as saved so it anchors the outcome history.
+    await db
+      .collection(COLLECTIONS.productOpportunities)
+      .doc(opportunity.id)
+      .set({ saved: true, savedAt: nowIso(), updatedAt: nowIso() }, { merge: true });
+
+    const unitRevenue = unitRevenueMinor(opportunity.summary);
+    const unitCost =
+      opportunity.summary.unitCostMinor ?? Math.max(1, Math.round(unitRevenue / 1.8));
+
+    for (const spec of plan) {
+      const occurredAt = isoDaysAgo(spec.daysAgo);
+      const actualRevenueMinor = unitRevenue * spec.sold;
+      const costLines = splitCost(unitCost * spec.manufactured);
+
+      const input = {
+        quantityManufactured: spec.manufactured,
+        quantitySold: spec.sold,
+        materialConsumedQuantity: spec.consumed,
+        remainingMaterialQuantity: Math.max(
+          0,
+          scenario.material.sheetCount - spec.consumed - spec.waste,
+        ),
+        unusedWasteQuantity: spec.waste,
+        actualRevenueMinor,
+        costLines,
+      };
+      const metrics = computeProductionOutcome(input);
+
+      const document: Omit<ProductionOutcomeDocument, 'id'> & { isSampleData: boolean } = {
+        orgId: DEMO_ORG_ID,
+        schemaVersion: SCHEMA_VERSION,
+        opportunityId: opportunity.id,
+        materialId,
+        productName: opportunity.productName,
+        currency: opportunity.summary.currency,
+        materialQuantityUnit: materialUnit,
+        estimatedMaxUnits: opportunity.summary.maxUnits,
+        estimatedUnitCostMinor: opportunity.summary.unitCostMinor,
+        ...input,
+        ...metrics,
+        notes: 'Sample completed production recorded by the seed.',
+        occurredAt,
+        createdBy: uid,
+        createdAt: occurredAt,
+        updatedAt: occurredAt,
+        isSampleData: true,
+      };
+
+      await db.collection(COLLECTIONS.productionOutcomes).doc(newRequestId()).set(document);
+      runs += 1;
+    }
+
+    log(
+      `outcomes: ${scenario.id} → "${opportunity.productName}" marked saved, ` +
+        `${plan.length} completed run(s)`,
+    );
+  }
+
+  log(`production outcomes: ${runs} record(s) so the impact report shows real figures`);
+}
+
 async function main(): Promise<void> {
   console.log('\nresaikel — seeding the emulator suite\n');
 
@@ -524,6 +668,9 @@ async function main(): Promise<void> {
 
   console.log('\nDiscovery');
   await runDiscoveryForSeedMaterials();
+
+  console.log('\nCompleted production');
+  await seedProductionOutcomes(uid);
 
   console.log(
     '\nDone. Sign in with demo@resaikel.test / resaikel-demo\n' +
