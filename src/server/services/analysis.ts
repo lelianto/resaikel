@@ -101,7 +101,7 @@ function supportedFamiliesSentence(): string {
   return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
 }
 
-function warningsFor(
+export function warningsFor(
   analysis: MaterialAnalysis,
   unsupportedClaims: readonly string[],
   mock: boolean,
