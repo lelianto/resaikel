@@ -20,7 +20,6 @@ const PROTECTED_PREFIXES = [
   '/opportunities',
   '/circularity',
   '/workspace',
-  '/requests',
   '/onboarding',
 ];
 
@@ -50,7 +49,6 @@ export const config = {
     '/opportunities/:path*',
     '/circularity/:path*',
     '/workspace/:path*',
-    '/requests/:path*',
     '/onboarding/:path*',
   ],
 };
