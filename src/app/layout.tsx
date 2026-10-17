@@ -32,6 +32,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${manrope.variable} ${GeistMono.variable}`}>
       <body className="min-h-dvh bg-canvas text-ink">
+        <noscript>
+          {/* Without JS the scroll observer never runs, so reveal content immediately. */}
+          <style>{`.motion-reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-ink-inverse"

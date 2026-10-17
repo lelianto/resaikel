@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, MinusCircle } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { Reveal } from '@/components/motion/reveal';
 import { Button } from '@/components/ui/button';
 import { Container, PageHeader } from '@/components/ui/layout';
 
@@ -29,17 +30,19 @@ export default function ImpactPage() {
     <>
       <section className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide">
-          <PageHeader
-            eyebrow="Impact"
-            title="Count what was reused. Leave the rest unclaimed."
-            description="resaikel measures practical material movement from registered stock to completed work. It does not turn assumptions into sustainability statistics."
-          />
+          <Reveal>
+            <PageHeader
+              eyebrow="Impact"
+              title="Count what was reused. Leave the rest unclaimed."
+              description="resaikel measures practical material movement from registered stock to completed work. It does not turn assumptions into sustainability statistics."
+            />
+          </Reveal>
         </Container>
       </section>
 
       <section className="py-16 sm:py-24">
         <Container width="wide" className="grid gap-12 lg:grid-cols-2">
-          <div>
+          <Reveal>
             <h2 className="text-2xl font-semibold text-ink">What can be measured</h2>
             <ul className="mt-6 space-y-4">
               {MEASURED.map((item) => (
@@ -49,8 +52,8 @@ export default function ImpactPage() {
                 </li>
               ))}
             </ul>
-          </div>
-          <div>
+          </Reveal>
+          <Reveal delay={120}>
             <h2 className="text-2xl font-semibold text-ink">What remains unknown</h2>
             <ul className="mt-6 space-y-4">
               {NOT_CLAIMED.map((item) => (
@@ -60,24 +63,24 @@ export default function ImpactPage() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
       <section className="bg-primary py-14 text-white">
         <Container width="wide" className="flex flex-wrap items-center justify-between gap-6">
-          <div>
+          <Reveal>
             <h2 className="text-2xl font-semibold text-white">Start with one material record.</h2>
             <p className="mt-2 max-w-2xl text-sm text-white/75">Confirmed inputs are the beginning of every useful impact measurement.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
+          </Reveal>
+          <Reveal delay={120} className="flex flex-wrap gap-3">
             <Link href="/circularity">
               <Button variant="accent" iconRight={<ArrowRight className="size-4" aria-hidden />}>View your impact</Button>
             </Link>
             <Link href="/materials/new">
               <Button variant="outline" className="border-white/40 text-white hover:bg-white/10">Scan material</Button>
             </Link>
-          </div>
+          </Reveal>
         </Container>
       </section>
     </>

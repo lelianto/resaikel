@@ -258,4 +258,30 @@
   .rise-in {
     animation: rise-in 200ms var(--ease-standard) both;
   }
+
+  /*
+   * Scroll-reveal primitive (see components/motion/reveal.tsx). Content starts a
+   * few pixels low and transparent, then settles once it enters the viewport.
+   * Deliberately gentle — a quiet settle, not a bounce.
+   */
+  .motion-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition-property: opacity, transform;
+    transition-duration: 640ms;
+    transition-timing-function: var(--ease-standard);
+  }
+
+  .motion-reveal[data-shown] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
 }
