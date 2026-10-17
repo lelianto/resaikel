@@ -74,10 +74,10 @@ export default function ImpactPage() {
             <p className="mt-2 max-w-2xl text-sm text-white/75">Confirmed inputs are the beginning of every useful impact measurement.</p>
           </Reveal>
           <Reveal delay={120} className="flex flex-wrap gap-3">
-            <Link href="/circularity">
+            <Link href="/sign-in?next=/circularity">
               <Button variant="accent" iconRight={<ArrowRight className="size-4" aria-hidden />}>View your impact</Button>
             </Link>
-            <Link href="/materials/new">
+            <Link href="/sign-in?next=/materials/new">
               <Button variant="outline" className="border-white/40 text-white hover:bg-white/10">Scan material</Button>
             </Link>
           </Reveal>

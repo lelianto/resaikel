@@ -12,7 +12,7 @@ import { cn } from '@/lib/cn';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/materials/new', label: 'Scan' },
+  { href: '/sign-in?next=/materials/new', label: 'Scan' },
   { href: '/impact', label: 'Impact' },
   { href: '/community', label: 'Community' },
   { href: '/about', label: 'About' },
@@ -68,7 +68,7 @@ export function SiteHeader() {
           >
             Sign in
           </Link>
-          <Link href="/materials/new">
+          <Link href="/sign-in?next=/materials/new">
             <Button size="sm">Scan material</Button>
           </Link>
         </div>
@@ -109,7 +109,7 @@ export function SiteHeader() {
               </Link>
             );
           })}
-          <Link href="/materials/new" className="pt-2" onClick={() => setOpen(false)}>
+          <Link href="/sign-in?next=/materials/new" className="pt-2" onClick={() => setOpen(false)}>
             <Button fullWidth>Scan material</Button>
           </Link>
         </Container>

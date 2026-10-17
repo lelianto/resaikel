@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { href: '/materials', label: 'Materials', mobileLabel: 'Materials', icon: Boxes },
   { href: '/discover', label: 'Discover', mobileLabel: 'Discover', icon: Compass },
   { href: '/opportunities', label: 'Opportunities', mobileLabel: 'Results', icon: Sparkle },
-  { href: '/circularity', label: 'Impact', mobileLabel: 'Impact', icon: Leaf },
+  { href: '/circularity', label: 'Circularity', mobileLabel: 'Circular', icon: Leaf },
   { href: '/workspace', label: 'Workspace', mobileLabel: 'Workshop', icon: Wrench },
 ] as const;
 

@@ -54,7 +54,7 @@ export default function CommunityPage() {
 
           <Reveal className="mt-16 flex flex-wrap items-center justify-between gap-6 border-t border-line pt-8">
             <p className="max-w-2xl text-sm leading-relaxed text-ink-muted">Community publishing is not active in this release. Start by creating a material record and keep your production evidence ready.</p>
-            <Link href="/materials/new">
+            <Link href="/sign-in?next=/materials/new">
               <Button iconRight={<ArrowRight className="size-4" aria-hidden />}>Scan material</Button>
             </Link>
           </Reveal>
