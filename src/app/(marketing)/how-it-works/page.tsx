@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { WorkflowPreview } from '@/components/marketing/workflow-preview';
+import { Reveal } from '@/components/motion/reveal';
 import { GridBackdrop, SectionRule } from '@/components/signature/annotations';
 import { Button } from '@/components/ui/button';
 import { Container, SectionHeading } from '@/components/ui/layout';
@@ -77,7 +78,7 @@ export default function HowItWorksPage() {
       <section className="relative isolate overflow-hidden border-b border-line">
         <GridBackdrop variant="major" className="opacity-70" />
         <Container width="wide" className="relative py-14 sm:py-20">
-          <div className="max-w-3xl space-y-5">
+          <Reveal className="max-w-3xl space-y-5">
             <div className="micro-label">How it works</div>
             <h1 className="text-[2rem] font-medium leading-[1.1] tracking-[-0.025em] text-ink sm:text-[2.5rem]">
               Eight steps, and the order is the point
@@ -87,19 +88,23 @@ export default function HowItWorksPage() {
               plausible sentence from being mistaken for an engineering result, and it is why a
               candidate can be rejected here even when it sounds like a good idea.
             </p>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
       <section className="border-b border-line py-16 sm:py-20">
         <Container width="wide" className="space-y-8">
-          <SectionRule index="01" label="Try it on sample data" />
-          <SectionHeading
-            eyebrow="Live preview"
-            title="The real engines, on a fixed input"
-            description="These results are computed on this page, now, by the same code the application runs. Only the input is fixed."
-          />
-          <WorkflowPreview scenarios={scenarios} locale={serverConfig.defaults.locale} />
+          <Reveal className="space-y-8">
+            <SectionRule index="01" label="Try it on sample data" />
+            <SectionHeading
+              eyebrow="Live preview"
+              title="The real engines, on a fixed input"
+              description="These results are computed on this page, now, by the same code the application runs. Only the input is fixed."
+            />
+          </Reveal>
+          <Reveal delay={80}>
+            <WorkflowPreview scenarios={scenarios} locale={serverConfig.defaults.locale} />
+          </Reveal>
         </Container>
       </section>
 
@@ -107,15 +112,20 @@ export default function HowItWorksPage() {
         <Container width="wide" className="space-y-10">
           <SectionRule index="02" label="The pipeline" />
           <ol className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
-            {PIPELINE.map((entry) => (
-              <li key={entry.step} className="flex gap-5 border-t border-line pt-5">
+            {PIPELINE.map((entry, index) => (
+              <Reveal
+                as="li"
+                key={entry.step}
+                delay={(index % 2) * 80}
+                className="flex gap-5 border-t border-line pt-5"
+              >
                 <span className="micro-label tnum shrink-0 pt-0.5">{entry.step}</span>
                 <div className="space-y-2">
                   <h2 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h2>
                   <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
                   <p className="micro-label text-accent-ink">{entry.aside}</p>
                 </div>
-              </li>
+              </Reveal>
             ))}
           </ol>
         </Container>
@@ -123,15 +133,17 @@ export default function HowItWorksPage() {
 
       <section className="border-b border-line py-16 sm:py-20">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="03" label="Reference" />
-          <SectionHeading
-            eyebrow="Reference"
-            title="The five verdicts, and the five sort modes"
-            description="Fifteen words do a lot of work in this product. These are the exact states a candidate can be in, and the exact ways you can order them."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="03" label="Reference" />
+            <SectionHeading
+              eyebrow="Reference"
+              title="The five verdicts, and the five sort modes"
+              description="Fifteen words do a lot of work in this product. These are the exact states a candidate can be in, and the exact ways you can order them."
+            />
+          </Reveal>
 
           <div className="grid gap-8 lg:grid-cols-2">
-            <div className="space-y-3">
+            <Reveal className="space-y-3">
               <h3 className="micro-label">Feasibility verdicts</h3>
               <dl className="divide-y divide-line">
                 {FEASIBILITY_STATUSES.map((status) => (
@@ -151,9 +163,9 @@ export default function HowItWorksPage() {
                   </div>
                 ))}
               </dl>
-            </div>
+            </Reveal>
 
-            <div className="space-y-3">
+            <Reveal delay={120} className="space-y-3">
               <h3 className="micro-label">Sort modes on the comparison screen</h3>
               <ul className="divide-y divide-line">
                 {SORT_MODES.map((mode) => (
@@ -168,19 +180,21 @@ export default function HowItWorksPage() {
                 order on screen can always be traced back to an explanation. Candidates that failed a
                 gate stay at the bottom in every mode.
               </p>
-            </div>
+            </Reveal>
           </div>
         </Container>
       </section>
 
       <section className="border-b border-line py-16 sm:py-20">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="04" label="Honest limits" />
-          <SectionHeading
-            eyebrow="Limitations"
-            title="What this version does not do"
-            description="Stated here rather than discovered later."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="04" label="Honest limits" />
+            <SectionHeading
+              eyebrow="Limitations"
+              title="What this version does not do"
+              description="Stated here rather than discovered later."
+            />
+          </Reveal>
 
           <ul className="grid gap-x-10 gap-y-6 lg:grid-cols-2">
             {[
@@ -192,11 +206,16 @@ export default function HowItWorksPage() {
               'Commerce is not implemented: no request-for-quotation, no quotation, no payment, no transaction.',
               'Outcome tracking and sustainability metrics are deferred. No carbon figure is claimed.',
               'The AI reads photographs. It cannot verify weight, grade, composition or certification, and it is instructed never to try.',
-            ].map((entry) => (
-              <li key={entry} className="flex gap-3 border-t border-line pt-4">
+            ].map((entry, index) => (
+              <Reveal
+                as="li"
+                key={entry}
+                delay={(index % 2) * 80}
+                className="flex gap-3 border-t border-line pt-4"
+              >
                 <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-line-strong" />
                 <span className="text-sm leading-relaxed text-ink-muted">{entry}</span>
-              </li>
+              </Reveal>
             ))}
           </ul>
 
@@ -205,7 +224,7 @@ export default function HowItWorksPage() {
 
       <section className="py-16 sm:py-20">
         <Container width="default" className="text-center">
-          <div className="space-y-6">
+          <Reveal className="space-y-6">
             <SectionHeading
               align="center"
               title="Ready to see it on your own offcuts?"
@@ -216,7 +235,7 @@ export default function HowItWorksPage() {
                 Discover material potential
               </Button>
             </Link>
-          </div>
+          </Reveal>
         </Container>
       </section>
     </>
