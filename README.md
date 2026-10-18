@@ -143,6 +143,7 @@ The test suite covers money arithmetic, unit conversion, packing, feasibility ga
 ## Documentation
 
 - [Product requirements](docs/PRODUCT_REQUIREMENTS.md)
+- [Product improvement roadmap](docs/PRODUCT_IMPROVEMENT_ROADMAP.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Data model](docs/DATA_MODEL.md)
 - [AI pipeline](docs/AI_PIPELINE.md)

@@ -19,6 +19,7 @@ import Link from 'next/link';
 import rekaMascot from '../../../assets/reka-bowerbird-mascot.png';
 
 import { WorkflowPreview } from '@/components/marketing/workflow-preview';
+import { Reveal } from '@/components/motion/reveal';
 import { SectionRule } from '@/components/signature/annotations';
 import { Button } from '@/components/ui/button';
 import { Container, SectionHeading } from '@/components/ui/layout';
@@ -173,7 +174,7 @@ export default function LandingPage() {
         <div className="playful-dots absolute inset-y-0 right-0 hidden w-1/2 opacity-60 lg:block" />
         <Container width="wide" className="relative py-16 sm:py-24 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center">
-            <div className="space-y-7">
+            <Reveal className="space-y-7">
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
                 <Sparkle className="size-3.5" aria-hidden />
                 Circular manufacturing intelligence
@@ -217,7 +218,7 @@ export default function LandingPage() {
                   </div>
                 ))}
               </dl>
-            </div>
+            </Reveal>
 
             <div className="relative min-h-[31rem] sm:min-h-[35rem]">
               <div className="absolute inset-x-0 top-0 rounded-[2rem] border border-line bg-accent-wash p-4 shadow-raised sm:left-4 sm:right-0 sm:p-6">
@@ -281,31 +282,37 @@ export default function LandingPage() {
       {/* ------------------------------------------------------- how it works */}
       <section id="how-it-works" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-8">
-          <SectionRule index="01" label="The workflow, step by step" />
-          <SectionHeading
-            eyebrow="Interactive preview"
-            title="From a photograph to a ranked opportunity"
-            description="Walk four steps. Yield, cost, price and buyers are computed live by the real engine on a fixed sample."
-          />
-          <WorkflowPreview scenarios={scenarios} locale={serverConfig.defaults.locale} />
+          <Reveal className="space-y-8">
+            <SectionRule index="01" label="The workflow, step by step" />
+            <SectionHeading
+              eyebrow="Interactive preview"
+              title="From a photograph to a ranked opportunity"
+              description="Walk four steps. Yield, cost, price and buyers are computed live by the real engine on a fixed sample."
+            />
+          </Reveal>
+          <Reveal delay={80}>
+            <WorkflowPreview scenarios={scenarios} locale={serverConfig.defaults.locale} />
+          </Reveal>
         </Container>
       </section>
 
       {/* ------------------------------------------------ five intelligences */}
       <section id="intelligence" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="02" label="Five kinds of intelligence" />
-          <SectionHeading
-            eyebrow="How it works"
-            title="Five questions, answered in order"
-            description="Each layer uses only what the one above it proved — so a good sentence is never mistaken for a result."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="02" label="Five kinds of intelligence" />
+            <SectionHeading
+              eyebrow="How it works"
+              title="Five questions, answered in order"
+              description="Each layer uses only what the one above it proved — so a good sentence is never mistaken for a result."
+            />
+          </Reveal>
 
           <ol className="grid gap-x-8 gap-y-8" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(20rem, 100%), 1fr))' }}>
-            {INTELLIGENCES.map((entry) => {
+            {INTELLIGENCES.map((entry, index) => {
               const Icon = entry.icon;
               return (
-                <li key={entry.index} className="space-y-3 border-t border-line pt-5">
+                <Reveal as="li" key={entry.index} delay={index * 70} className="space-y-3 border-t border-line pt-5">
                   <div className="flex items-center gap-3">
                     <span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary-soft text-primary">
                       <Icon className="size-4" aria-hidden />
@@ -314,7 +321,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
                   <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
-                </li>
+                </Reveal>
               );
             })}
           </ol>
@@ -324,22 +331,24 @@ export default function LandingPage() {
       {/* -------------------------------------------------- the pipeline */}
       <section className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="03" label="Eight steps, and the order is the point" />
-          <SectionHeading
-            eyebrow="The pipeline"
-            title="Eight steps, and each builds on the last"
-            description="No step may use what an earlier one didn’t establish."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="03" label="Eight steps, and the order is the point" />
+            <SectionHeading
+              eyebrow="The pipeline"
+              title="Eight steps, and each builds on the last"
+              description="No step may use what an earlier one didn’t establish."
+            />
+          </Reveal>
           <ol className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
-            {PIPELINE.map((entry) => (
-              <li key={entry.step} className="flex gap-5 border-t border-line pt-5">
+            {PIPELINE.map((entry, index) => (
+              <Reveal as="li" key={entry.step} delay={index * 60} className="flex gap-5 border-t border-line pt-5">
                 <span className="micro-label tnum shrink-0 pt-0.5">{entry.step}</span>
                 <div className="space-y-2">
                   <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
                   <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
                   <p className="micro-label text-accent-ink">{entry.aside}</p>
                 </div>
-              </li>
+              </Reveal>
             ))}
           </ol>
         </Container>
@@ -348,14 +357,16 @@ export default function LandingPage() {
       {/* ------------------------------------------------------- reference */}
       <section className="border-b border-line bg-surface py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="04" label="Reference" />
-          <SectionHeading
-            eyebrow="Reference"
-            title="The five verdicts, and the five sort modes"
-            description="Every state a candidate can be in, and every way to order them."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="04" label="Reference" />
+            <SectionHeading
+              eyebrow="Reference"
+              title="The five verdicts, and the five sort modes"
+              description="Every state a candidate can be in, and every way to order them."
+            />
+          </Reveal>
 
-          <div className="grid gap-8 lg:grid-cols-2">
+          <Reveal as="div" delay={80} className="grid gap-8 lg:grid-cols-2">
             <div className="space-y-3">
               <h3 className="micro-label">Feasibility verdicts</h3>
               <dl className="divide-y divide-line">
@@ -394,23 +405,25 @@ export default function LandingPage() {
                 gate stay at the bottom in every mode.
               </p>
             </div>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
       {/* -------------------------------------------------------- examples */}
       <section id="examples" className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="05" label="Material to product" />
-          <SectionHeading
-            eyebrow="Examples"
-            title="What the catalogue actually contains"
-            description="Six validated specs, each with a real parts list, tooling and labour time. If it can’t be built, it isn’t here."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="05" label="Material to product" />
+            <SectionHeading
+              eyebrow="Examples"
+              title="What the catalogue actually contains"
+              description="Six validated specs, each with a real parts list, tooling and labour time. If it can’t be built, it isn’t here."
+            />
+          </Reveal>
 
           <ul className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(17rem, 100%), 1fr))' }}>
-            {examples.map((template) => (
-              <li key={template.id} className="panel overflow-hidden">
+            {examples.map((template, index) => (
+              <Reveal as="li" key={template.id} delay={index * 60} className="panel overflow-hidden">
                 <div className="relative aspect-[4/3] overflow-hidden border-b border-line bg-surface-sunken">
                   <Image
                     src={`/catalogue/${template.id}.jpg`}
@@ -444,7 +457,7 @@ export default function LandingPage() {
                     </div>
                   </dl>
                 </div>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </Container>
@@ -453,13 +466,15 @@ export default function LandingPage() {
       {/* ---------------------------------------------------------- impact */}
       <section id="impact" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="06" label="Count what was reused" />
-          <SectionHeading
-            eyebrow="Impact"
-            title="Count what was reused. Leave the rest unclaimed."
-            description="We measure real material movement from stock to finished work — not assumptions dressed up as statistics."
-          />
-          <div className="grid gap-12 lg:grid-cols-2">
+          <Reveal className="space-y-10">
+            <SectionRule index="06" label="Count what was reused" />
+            <SectionHeading
+              eyebrow="Impact"
+              title="Count what was reused. Leave the rest unclaimed."
+              description="We measure real material movement from stock to finished work — not assumptions dressed up as statistics."
+            />
+          </Reveal>
+          <Reveal as="div" delay={80} className="grid gap-12 lg:grid-cols-2">
             <div>
               <h3 className="text-[0.9375rem] font-medium text-ink">What can be measured</h3>
               <ul className="mt-5 space-y-4">
@@ -488,20 +503,22 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
       {/* ----------------------------------------------------- sustainability */}
       <section className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <SectionHeading
-            eyebrow="Sustainability"
-            title="Measured, not asserted"
-            description="Easy to fabricate, hard to verify. So we report only what we can count."
-          />
+          <Reveal>
+            <SectionHeading
+              eyebrow="Sustainability"
+              title="Measured, not asserted"
+              description="Easy to fabricate, hard to verify. So we report only what we can count."
+            />
+          </Reveal>
 
-          <div className="space-y-4">
+          <Reveal delay={120} className="space-y-4">
             <dl className="grid gap-4 sm:grid-cols-2">
               {[
                 { label: 'Material registered', value: 'Counted' },
@@ -519,19 +536,21 @@ export default function LandingPage() {
               Waste reduction is arithmetic on your own records — area in, area used, the difference.
               No carbon figure, because there’s no methodology behind one yet.
             </p>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
       {/* ------------------------------------------------------------ limits */}
       <section className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="07" label="Where it refuses to guess" />
-          <SectionHeading
-            eyebrow="What it will not do"
-            title="The limits are part of the product"
-            description="Trust comes from being explicit about the edge of what we know."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="07" label="Where it refuses to guess" />
+            <SectionHeading
+              eyebrow="What it will not do"
+              title="The limits are part of the product"
+              description="Trust comes from being explicit about the edge of what we know."
+            />
+          </Reveal>
 
           <div className="grid gap-6 lg:grid-cols-3">
             {[
@@ -547,11 +566,16 @@ export default function LandingPage() {
                 title: 'It will not name a buyer',
                 body: 'Always a buyer category, or a consented request. No brand is shown as a buyer unless it registered.',
               },
-            ].map((entry) => (
-              <div key={entry.title} className="space-y-2 border-t border-line pt-5">
+            ].map((entry, index) => (
+              <Reveal
+                as="div"
+                key={entry.title}
+                delay={index * 90}
+                className="space-y-2 border-t border-line pt-5"
+              >
                 <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
                 <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </Container>
@@ -560,21 +584,28 @@ export default function LandingPage() {
       {/* ------------------------------------------------------- community */}
       <section id="community" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="08" label="Knowledge that survives the first build" />
-          <SectionHeading
-            eyebrow="Community"
-            title="Useful knowledge should survive the first build."
-            description="Built around production outcomes, practical lessons and consent — not a feed of unverified AI ideas."
-          />
+          <Reveal className="space-y-10">
+            <SectionRule index="08" label="Knowledge that survives the first build" />
+            <SectionHeading
+              eyebrow="Community"
+              title="Useful knowledge should survive the first build."
+              description="Built around production outcomes, practical lessons and consent — not a feed of unverified AI ideas."
+            />
+          </Reveal>
           <div className="grid gap-8 lg:grid-cols-3">
-            {COMMUNITY_AREAS.map((area) => {
+            {COMMUNITY_AREAS.map((area, index) => {
               const Icon = area.icon;
               return (
-                <article key={area.title} className="border-t border-line pt-5">
+                <Reveal
+                  as="article"
+                  key={area.title}
+                  delay={index * 70}
+                  className="border-t border-line pt-5"
+                >
                   <Icon className="size-6 text-primary" aria-hidden />
                   <h3 className="mt-4 text-[0.9375rem] font-medium text-ink">{area.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink-muted">{area.body}</p>
-                </article>
+                </Reveal>
               );
             })}
           </div>
@@ -588,8 +619,10 @@ export default function LandingPage() {
       {/* ----------------------------------------------------------- about */}
       <section id="about" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="09" label="Why resaikel exists" />
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <Reveal>
+            <SectionRule index="09" label="Why resaikel exists" />
+          </Reveal>
+          <Reveal as="div" className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <SectionHeading
               eyebrow="About"
               title="A practical bridge between leftover material and useful work."
@@ -600,8 +633,8 @@ export default function LandingPage() {
               alt="Reka, the resaikel bowerbird mascot"
               className="mx-auto h-auto w-56"
             />
-          </div>
-          <div className="grid gap-12 border-t border-line pt-8 lg:grid-cols-2">
+          </Reveal>
+          <Reveal as="div" delay={80} className="grid gap-12 border-t border-line pt-8 lg:grid-cols-2">
             <div>
               <h3 className="text-[0.9375rem] font-medium text-ink">Why this product exists</h3>
               <p className="mt-3 text-sm leading-7 text-ink-muted">
@@ -616,14 +649,14 @@ export default function LandingPage() {
                 deterministic engines own every fact that touches production or money.
               </p>
             </div>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
       {/* ------------------------------------------------------------ final */}
       <section className="bg-primary py-16 text-white sm:py-24">
         <Container width="default" className="text-center">
-          <div className="space-y-6 [&_.micro-label]:text-white/70 [&_h2]:text-white [&_p]:text-white/80">
+          <Reveal className="space-y-6 [&_.micro-label]:text-white/70 [&_h2]:text-white [&_p]:text-white/80">
             <SectionHeading
               align="center"
               eyebrow="Start here"
@@ -646,7 +679,7 @@ export default function LandingPage() {
               <Sparkle className="size-3.5" aria-hidden />
               Free to try. No payments, no transactions.
             </p>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
