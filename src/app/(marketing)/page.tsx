@@ -16,7 +16,6 @@ import rekaMascot from '../../../assets/reka-bowerbird-mascot.png';
 
 import { WorkflowPreview } from '@/components/marketing/workflow-preview';
 import { SectionRule } from '@/components/signature/annotations';
-import { ProductSilhouette } from '@/components/signature/product-silhouette';
 import { Button } from '@/components/ui/button';
 import { Container, SectionHeading } from '@/components/ui/layout';
 import { getTemplate } from '@/domain/catalog';
@@ -246,11 +245,15 @@ export default function LandingPage() {
           <ul className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(17rem, 100%), 1fr))' }}>
             {examples.map((template) => (
               <li key={template.id} className="panel overflow-hidden">
-                <ProductSilhouette
-                  category={template.category}
-                  partCount={template.parts.length}
-                  className="border-b border-line"
-                />
+                <div className="relative aspect-[4/3] overflow-hidden border-b border-line bg-surface-sunken">
+                  <Image
+                    src={`/catalogue/${template.id}.jpg`}
+                    alt={template.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 17rem"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="space-y-2 p-4">
                   <h3 className="text-[0.9375rem] font-medium text-ink">{template.name}</h3>
                   <p className="line-clamp-3 text-xs leading-relaxed text-ink-muted">
