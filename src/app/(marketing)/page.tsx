@@ -278,8 +278,8 @@ export default function LandingPage() {
         </p>
       </div>
 
-      {/* ------------------------------------------------------- workflow */}
-      <section id="workflow" className="border-b border-line bg-white py-16 sm:py-24">
+      {/* ------------------------------------------------------- how it works */}
+      <section id="how-it-works" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-8">
           <SectionRule index="01" label="The workflow, step by step" />
           <SectionHeading
@@ -291,8 +291,8 @@ export default function LandingPage() {
         </Container>
       </section>
 
-      {/* --------------------------------------------------- how it works */}
-      <section id="how-it-works" className="border-b border-line bg-accent-wash py-16 sm:py-24">
+      {/* ------------------------------------------------ five intelligences */}
+      <section id="intelligence" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <SectionRule index="02" label="Five kinds of intelligence" />
           <SectionHeading
@@ -401,7 +401,7 @@ export default function LandingPage() {
       {/* -------------------------------------------------------- examples */}
       <section id="examples" className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="03" label="Material to product" />
+          <SectionRule index="05" label="Material to product" />
           <SectionHeading
             eyebrow="Examples"
             title="What the catalogue actually contains"
@@ -450,36 +450,44 @@ export default function LandingPage() {
         </Container>
       </section>
 
-      {/* ------------------------------------------------------ intelligence */}
-      <section className="border-b border-line bg-white py-16 sm:py-24">
+      {/* ---------------------------------------------------------- impact */}
+      <section id="impact" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="04" label="Where it refuses to guess" />
+          <SectionRule index="06" label="Count what was reused" />
           <SectionHeading
-            eyebrow="What it will not do"
-            title="The limits are part of the product"
-            description="A platform that turns waste into business decisions earns trust by being explicit about the edge of what it knows."
+            eyebrow="Impact"
+            title="Count what was reused. Leave the rest unclaimed."
+            description="resaikel measures practical material movement from registered stock to completed work. It does not turn assumptions into sustainability statistics."
           />
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            {[
-              {
-                title: 'It will not certify anything',
-                body: 'No load rating, fire rating, food-contact safety, or packaging standard compliance. A successful 2D layout does not prove structural safety.',
-              },
-              {
-                title: 'It will not invent a price',
-                body: 'Prices come from labelled evidence with its source type and freshness shown. Listing prices are labelled as asking prices and never presented as proof of demand. No evidence means Insufficient Market Data.',
-              },
-              {
-                title: 'It will not name a buyer',
-                body: 'Buyer output is always a category of buyer, or a registered request whose owner consented to be matched. No brand is ever presented as an active purchaser without their own registration.',
-              },
-            ].map((entry) => (
-              <div key={entry.title} className="space-y-2 border-t border-line pt-5">
-                <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
-                <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
-              </div>
-            ))}
+          <div className="grid gap-12 lg:grid-cols-2">
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">What can be measured</h3>
+              <ul className="mt-5 space-y-4">
+                {IMPACT_MEASURED.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
+                  >
+                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">What remains unknown</h3>
+              <ul className="mt-5 space-y-4">
+                {IMPACT_NOT_CLAIMED.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
+                  >
+                    <MinusCircle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </Container>
       </section>
@@ -522,44 +530,36 @@ export default function LandingPage() {
         </Container>
       </section>
 
-      {/* ---------------------------------------------------------- impact */}
-      <section id="impact" className="border-b border-line bg-white py-16 sm:py-24">
+      {/* ------------------------------------------------------------ limits */}
+      <section className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="05" label="Count what was reused" />
+          <SectionRule index="07" label="Where it refuses to guess" />
           <SectionHeading
-            eyebrow="Impact"
-            title="Count what was reused. Leave the rest unclaimed."
-            description="resaikel measures practical material movement from registered stock to completed work. It does not turn assumptions into sustainability statistics."
+            eyebrow="What it will not do"
+            title="The limits are part of the product"
+            description="A platform that turns waste into business decisions earns trust by being explicit about the edge of what it knows."
           />
-          <div className="grid gap-12 lg:grid-cols-2">
-            <div>
-              <h3 className="text-[0.9375rem] font-medium text-ink">What can be measured</h3>
-              <ul className="mt-5 space-y-4">
-                {IMPACT_MEASURED.map((item) => (
-                  <li
-                    key={item}
-                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
-                  >
-                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-[0.9375rem] font-medium text-ink">What remains unknown</h3>
-              <ul className="mt-5 space-y-4">
-                {IMPACT_NOT_CLAIMED.map((item) => (
-                  <li
-                    key={item}
-                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
-                  >
-                    <MinusCircle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {[
+              {
+                title: 'It will not certify anything',
+                body: 'No load rating, fire rating, food-contact safety, or packaging standard compliance. A successful 2D layout does not prove structural safety.',
+              },
+              {
+                title: 'It will not invent a price',
+                body: 'Prices come from labelled evidence with its source type and freshness shown. Listing prices are labelled as asking prices and never presented as proof of demand. No evidence means Insufficient Market Data.',
+              },
+              {
+                title: 'It will not name a buyer',
+                body: 'Buyer output is always a category of buyer, or a registered request whose owner consented to be matched. No brand is ever presented as an active purchaser without their own registration.',
+              },
+            ].map((entry) => (
+              <div key={entry.title} className="space-y-2 border-t border-line pt-5">
+                <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
+                <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
+              </div>
+            ))}
           </div>
         </Container>
       </section>
@@ -567,7 +567,7 @@ export default function LandingPage() {
       {/* ------------------------------------------------------- community */}
       <section id="community" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="06" label="Knowledge that survives the first build" />
+          <SectionRule index="08" label="Knowledge that survives the first build" />
           <SectionHeading
             eyebrow="Community"
             title="Useful knowledge should survive the first build."
@@ -595,7 +595,7 @@ export default function LandingPage() {
       {/* ----------------------------------------------------------- about */}
       <section id="about" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
-          <SectionRule index="07" label="Why resaikel exists" />
+          <SectionRule index="09" label="Why resaikel exists" />
           <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <SectionHeading
               eyebrow="About"
