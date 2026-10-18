@@ -16,7 +16,7 @@ import { cn } from '@/lib/cn';
  */
 const NAV_LINKS = [
   { id: 'top', label: 'Home' },
-  { id: 'how-it-works', label: 'How it works' },
+  { id: 'how-it-works', label: 'How It Works' },
   { id: 'examples', label: 'Examples' },
   { id: 'impact', label: 'Impact' },
   { id: 'about', label: 'About' },
