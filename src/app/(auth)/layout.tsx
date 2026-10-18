@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <Logo />
           </Link>
           <Link
-            href="/how-it-works"
+            href="/#how-it-works"
             className="text-[0.8125rem] text-ink-muted transition-colors hover:text-ink"
           >
             How it works

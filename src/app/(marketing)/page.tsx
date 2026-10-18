@@ -1,8 +1,12 @@
 import {
   ArrowRight,
+  BookOpen,
   Boxes,
+  CheckCircle2,
   Compass,
   Factory,
+  MessageCircle,
+  MinusCircle,
   Package,
   Ruler,
   Sparkle,
@@ -20,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Container, SectionHeading } from '@/components/ui/layout';
 import { getTemplate } from '@/domain/catalog';
 import { sampleScenarios } from '@/domain/demo/sample-scenarios';
+import { FEASIBILITY_LABELS, FEASIBILITY_STATUSES } from '@/domain/feasibility/types';
+import { SORT_MODE_LABELS, SORT_MODES } from '@/domain/ranking/rank';
 import { serverConfig } from '@/lib/config';
 
 export const metadata: Metadata = {
@@ -71,6 +77,89 @@ const EXAMPLE_TEMPLATE_IDS = [
   'sheetwood-display-shelf-small',
 ] as const;
 
+const PIPELINE = [
+  {
+    step: '01',
+    title: 'Photograph and describe',
+    body: 'Upload up to four compressed photographs. The vision model describes only what it can see: category, condition, contamination and restrictions. Measurements are deliberately excluded from the prompt, because a photograph cannot establish one.',
+    aside: 'Client-side compression, server-side byte-level validation.',
+  },
+  {
+    step: '02',
+    title: 'Confirm by hand',
+    body: 'You correct and confirm the properties. Every attribute records whether it was AI inferred, user confirmed, measured, or unknown. Confirmation is blocked until critical fields are human verified.',
+    aside: 'An AI inference is never treated as a measurement.',
+  },
+  {
+    step: '03',
+    title: 'Discover candidates',
+    body: 'The model may only select from a curated catalogue of validated specifications, and may only set parameters inside their declared bounds. Anything that cannot be substantiated is rejected before it reaches the engines.',
+    aside: 'Unknown templates, out-of-range parameters and unsafe claims are all dropped.',
+  },
+  {
+    step: '04',
+    title: 'Apply the gates',
+    body: 'Six ordered checks: material family, sheet dimensions, thickness, condition and contamination, whether every panel fits, and whether the stock yields at least one unit. A failure removes the candidate from ranking.',
+    aside: 'Rejection reasons are always stated.',
+  },
+  {
+    step: '05',
+    title: 'Cost it transparently',
+    body: 'Eleven cost lines, each carrying its own assumption and its own derivation. Integer minor units throughout, with a single half-up rounding step. The platform fee is charged on the sale, so it is excluded from production cost.',
+    aside: 'Every figure is editable and shows its working.',
+  },
+  {
+    step: '06',
+    title: 'Evidence the market',
+    body: 'Prices come from a curated reference set, aggregated to a median with 25th and 75th percentiles. Each row is labelled as a transaction, quotation, listing, or estimate, and the set is scored for quality and freshness.',
+    aside: 'No evidence produces Insufficient Market Data, not a price.',
+  },
+  {
+    step: '07',
+    title: 'Match buyers',
+    body: 'Buyer output is a category of buyer with the matched factors shown, or a registered request whose owner consented to be shared. Quantity shortfalls against available capacity are flagged rather than smoothed over.',
+    aside: 'No company is named unless it registered itself.',
+  },
+  {
+    step: '08',
+    title: 'Rank and explain',
+    body: 'Hard gates run before any score. Viable candidates are scored on feasibility, economic value, material utilisation, buyer compatibility, evidence quality, and simplicity, with an explanation per dimension.',
+    aside: 'Unknown dimensions are excluded and reported, never scored as zero.',
+  },
+] as const;
+
+const IMPACT_MEASURED = [
+  'Material records and confirmed quantities',
+  'Sheet area allocated to evaluated products',
+  'Material consumed by completed production records',
+  'Cutting waste estimated by the deterministic nesting engine',
+] as const;
+
+const IMPACT_NOT_CLAIMED = [
+  'Carbon emissions avoided',
+  'Landfill diversion without a completed reuse record',
+  'Environmental certification or regulatory compliance',
+  'Impact derived only from an AI recommendation',
+] as const;
+
+const COMMUNITY_AREAS = [
+  {
+    icon: BookOpen,
+    title: 'Build outcomes',
+    body: 'Record what was made, what changed, and what the real yield was.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'Practical notes',
+    body: 'Share finishing, tooling, and process lessons without presenting opinion as certification.',
+  },
+  {
+    icon: Users,
+    title: 'Consented demand',
+    body: 'Connect registered needs with capable workshops while keeping business identity under owner control.',
+  },
+] as const;
+
 export default function LandingPage() {
   const scenarios = sampleScenarios();
   const examples = EXAMPLE_TEMPLATE_IDS.map((id) => getTemplate(id)).filter(
@@ -80,7 +169,7 @@ export default function LandingPage() {
   return (
     <>
       {/* ------------------------------------------------------------- hero */}
-      <section className="warm-orbit relative isolate overflow-hidden border-b border-line">
+      <section id="top" className="warm-orbit relative isolate overflow-hidden border-b border-line">
         <div className="playful-dots absolute inset-y-0 right-0 hidden w-1/2 opacity-60 lg:block" />
         <Container width="wide" className="relative py-16 sm:py-24 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center">
@@ -106,14 +195,14 @@ export default function LandingPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link href="/sign-in">
                   <Button size="lg" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-                    Discover material potential
+                    Open App
                   </Button>
                 </Link>
-                <Link href="/how-it-works">
+                <a href="#how-it-works">
                   <Button size="lg" variant="outline">
                     Explore how it works
                   </Button>
-                </Link>
+                </a>
               </div>
 
               <dl className="grid max-w-xl grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-6 sm:grid-cols-3">
@@ -203,7 +292,7 @@ export default function LandingPage() {
       </section>
 
       {/* --------------------------------------------------- how it works */}
-      <section id="intelligence" className="border-b border-line bg-accent-wash py-16 sm:py-24">
+      <section id="how-it-works" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <SectionRule index="02" label="Five kinds of intelligence" />
           <SectionHeading
@@ -229,6 +318,83 @@ export default function LandingPage() {
               );
             })}
           </ol>
+        </Container>
+      </section>
+
+      {/* -------------------------------------------------- the pipeline */}
+      <section className="border-b border-line bg-white py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <SectionRule index="03" label="Eight steps, and the order is the point" />
+          <SectionHeading
+            eyebrow="The pipeline"
+            title="From a photograph to a ranked opportunity, step by step"
+            description="Each step may only use what the step before it established. That is what stops a plausible sentence from being mistaken for an engineering result."
+          />
+          <ol className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
+            {PIPELINE.map((entry) => (
+              <li key={entry.step} className="flex gap-5 border-t border-line pt-5">
+                <span className="micro-label tnum shrink-0 pt-0.5">{entry.step}</span>
+                <div className="space-y-2">
+                  <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
+                  <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
+                  <p className="micro-label text-accent-ink">{entry.aside}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Container>
+      </section>
+
+      {/* ------------------------------------------------------- reference */}
+      <section className="border-b border-line bg-surface py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <SectionRule index="04" label="Reference" />
+          <SectionHeading
+            eyebrow="Reference"
+            title="The five verdicts, and the five sort modes"
+            description="These are the exact states a candidate can be in, and the exact ways you can order them."
+          />
+
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className="space-y-3">
+              <h3 className="micro-label">Feasibility verdicts</h3>
+              <dl className="divide-y divide-line">
+                {FEASIBILITY_STATUSES.map((status) => (
+                  <div key={status} className="py-2.5">
+                    <dt className="text-sm font-medium text-ink">{FEASIBILITY_LABELS[status]}</dt>
+                    <dd className="mt-0.5 text-xs leading-relaxed text-ink-muted">
+                      {status === 'process_feasible'
+                        ? 'Nests in the stock and every required tool is available. Still an opinion, not a certification.'
+                        : status === 'geometrically_feasible'
+                          ? 'The parts fit the sheets, but no workshop profile was supplied, so the process could not be verified.'
+                          : status === 'conditionally_feasible'
+                            ? 'Nests, but tooling is missing, the condition is poor, or defects were recorded but not located.'
+                            : status === 'not_feasible'
+                              ? 'A hard constraint failed: wrong material family, a panel that cannot be cut, too thin, contaminated, or no unit fits.'
+                              : 'Required material properties are still unconfirmed, so nothing is decided either way.'}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="micro-label">Sort modes on the comparison screen</h3>
+              <ul className="divide-y divide-line">
+                {SORT_MODES.map((mode) => (
+                  <li key={mode} className="flex items-baseline justify-between gap-4 py-2.5">
+                    <span className="text-sm text-ink">{SORT_MODE_LABELS[mode]}</span>
+                    <span className="micro-label">dimension value</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs leading-relaxed text-ink-muted">
+                Sorting reuses the same normalised dimension values the ranking engine scored, so the
+                order on screen can always be traced back to an explanation. Candidates that failed a
+                gate stay at the bottom in every mode.
+              </p>
+            </div>
+          </div>
         </Container>
       </section>
 
@@ -356,6 +522,113 @@ export default function LandingPage() {
         </Container>
       </section>
 
+      {/* ---------------------------------------------------------- impact */}
+      <section id="impact" className="border-b border-line bg-white py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <SectionRule index="05" label="Count what was reused" />
+          <SectionHeading
+            eyebrow="Impact"
+            title="Count what was reused. Leave the rest unclaimed."
+            description="resaikel measures practical material movement from registered stock to completed work. It does not turn assumptions into sustainability statistics."
+          />
+          <div className="grid gap-12 lg:grid-cols-2">
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">What can be measured</h3>
+              <ul className="mt-5 space-y-4">
+                {IMPACT_MEASURED.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
+                  >
+                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">What remains unknown</h3>
+              <ul className="mt-5 space-y-4">
+                {IMPACT_NOT_CLAIMED.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
+                  >
+                    <MinusCircle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ------------------------------------------------------- community */}
+      <section id="community" className="border-b border-line bg-accent-wash py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <SectionRule index="06" label="Knowledge that survives the first build" />
+          <SectionHeading
+            eyebrow="Community"
+            title="Useful knowledge should survive the first build."
+            description="The community layer is being designed around production outcomes, practical lessons, and consent. It is not a feed of unverified AI ideas."
+          />
+          <div className="grid gap-8 lg:grid-cols-3">
+            {COMMUNITY_AREAS.map((area) => {
+              const Icon = area.icon;
+              return (
+                <article key={area.title} className="border-t border-line pt-5">
+                  <Icon className="size-6 text-primary" aria-hidden />
+                  <h3 className="mt-4 text-[0.9375rem] font-medium text-ink">{area.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-muted">{area.body}</p>
+                </article>
+              );
+            })}
+          </div>
+          <p className="border-t border-line pt-6 text-sm leading-relaxed text-ink-muted">
+            Community publishing is not active in this release. Start by creating a material record
+            and keep your production evidence ready.
+          </p>
+        </Container>
+      </section>
+
+      {/* ----------------------------------------------------------- about */}
+      <section id="about" className="border-b border-line bg-white py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <SectionRule index="07" label="Why resaikel exists" />
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <SectionHeading
+              eyebrow="About"
+              title="A practical bridge between leftover material and useful work."
+              description="resaikel exists to make small-scale circular manufacturing easier to reason about. It combines visual assistance with deterministic engineering and commercial checks."
+            />
+            <Image
+              src={rekaMascot}
+              alt="Reka, the resaikel bowerbird mascot"
+              className="mx-auto h-auto w-56"
+            />
+          </div>
+          <div className="grid gap-12 border-t border-line pt-8 lg:grid-cols-2">
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">Why this product exists</h3>
+              <p className="mt-3 text-sm leading-7 text-ink-muted">
+                Material reuse advice is often inspirational but incomplete. A product idea is only
+                useful when the material fits, the required process is available, the cost is
+                visible, and uncertainty is stated clearly.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">How AI is used</h3>
+              <p className="mt-3 text-sm leading-7 text-ink-muted">
+                AI helps describe photographs, select from a curated catalogue, and explain computed
+                results. Human confirmation and deterministic engines remain responsible for the
+                facts that affect production and money.
+              </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ------------------------------------------------------------ final */}
       <section className="bg-primary py-16 text-white sm:py-24">
         <Container width="default" className="text-center">
@@ -369,14 +642,14 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link href="/sign-in">
                 <Button variant="accent" size="lg" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-                  Discover material potential
+                  Open App
                 </Button>
               </Link>
-              <Link href="/how-it-works">
+              <a href="#how-it-works">
                 <Button size="lg" variant="outline" className="border-white/50 bg-white text-ink hover:bg-white/90">
                   Explore how it works
                 </Button>
-              </Link>
+              </a>
             </div>
             <p className="flex items-center justify-center gap-2 text-xs text-ink-faint">
               <Sparkle className="size-3.5" aria-hidden />
