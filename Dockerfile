@@ -39,6 +39,10 @@ RUN groupadd --system --gid 1001 nodejs \
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# `output: 'standalone'` does not bundle the public/ folder, so copy it in
+# manually — without this, everything under public/ (brand-mark.png, favicons,
+# manifest icons) 404s in production.
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 EXPOSE 8080
