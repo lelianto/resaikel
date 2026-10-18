@@ -1,8 +1,8 @@
 'use client';
 
-import { Camera, ImagePlus, Info, Trash2 } from 'lucide-react';
+import { Camera, ChevronDown, ImagePlus, Info, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Alert, IndeterminateBar, ProgressBar } from '@/components/ui/feedback';
 import { Button, IconButton } from '@/components/ui/button';
@@ -46,10 +46,12 @@ type Phase = 'form' | 'creating' | 'uploading' | 'analyzing' | 'done' | 'error';
 interface DraftPhoto {
   readonly id: string;
   readonly file: File;
-  readonly previewUrl: string;
+  previewUrl: string;
   compressed: CompressedImage | null;
-  status: 'pending' | 'prepared' | 'uploaded' | 'failed';
+  status: 'pending' | 'compressing' | 'prepared' | 'uploaded' | 'failed';
   message: string | null;
+  /** Camera captures are compressed the moment they arrive, not at submit. */
+  readonly autoCompress: boolean;
 }
 
 const MAX_PHOTOS = 4;
@@ -96,6 +98,9 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const cameraInput = useRef<HTMLInputElement>(null);
+  // Ids whose on-capture compression is already running, so the effect below
+  // never starts a second pass over the same photo.
+  const compressingIds = useRef<Set<string>>(new Set());
 
   const [phase, setPhase] = useState<Phase>('form');
   const [photos, setPhotos] = useState<DraftPhoto[]>([]);
@@ -122,16 +127,72 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
 
   const busy = phase === 'creating' || phase === 'uploading' || phase === 'analyzing';
 
-  function addFiles(incoming: FileList | null): void {
+  // Compress camera captures as soon as they land. A phone photo is large and
+  // sometimes HEIC, which many browsers will not render in an <img>; re-encoding
+  // to WebP/JPEG here both shrinks it and guarantees the preview displays.
+  useEffect(() => {
+    for (const photo of photos) {
+      if (!photo.autoCompress || photo.status !== 'pending') continue;
+      if (compressingIds.current.has(photo.id)) continue;
+
+      const { id, file } = photo;
+      compressingIds.current.add(id);
+      setPhotos((current) =>
+        current.map((entry) => (entry.id === id ? { ...entry, status: 'compressing' } : entry)),
+      );
+
+      compressImageFile(file, { allowOversize: true })
+        .then((compressed) => {
+          setPhotos((current) =>
+            current.map((entry) => {
+              if (entry.id !== id) return entry;
+              // Swap the preview to the re-encoded blob so even HEIC shows.
+              URL.revokeObjectURL(entry.previewUrl);
+              return {
+                ...entry,
+                compressed,
+                previewUrl: URL.createObjectURL(compressed.blob),
+                status: 'prepared',
+                message: compressed.compressed
+                  ? `Compressed ${formatBytes(compressed.originalBytes)} to ${formatBytes(compressed.blob.size)}`
+                  : 'Ready to upload',
+              };
+            }),
+          );
+        })
+        .catch((caught) => {
+          setPhotos((current) =>
+            current.map((entry) =>
+              entry.id === id
+                ? {
+                    ...entry,
+                    status: 'failed',
+                    message:
+                      caught instanceof ImagePreparationError
+                        ? caught.message
+                        : 'That photograph could not be prepared.',
+                  }
+                : entry,
+            ),
+          );
+        })
+        .finally(() => {
+          compressingIds.current.delete(id);
+        });
+    }
+  }, [photos]);
+
+  function addFiles(incoming: FileList | null, options: { camera?: boolean } = {}): void {
     if (!incoming || incoming.length === 0) return;
     setError(null);
 
+    const fromCamera = options.camera === true;
     const candidates = Array.from(incoming);
     const problems: string[] = [];
     const accepted: File[] = [];
 
     for (const file of candidates) {
-      const problem = validateImageFile(file);
+      const problem = validateImageFile(file, { allowOversize: fromCamera });
       if (problem) {
         problems.push(`${file.name}: ${problem}`);
         continue;
@@ -157,7 +218,8 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
           previewUrl: URL.createObjectURL(file),
           compressed: null,
           status: 'pending',
-          message: null,
+          message: fromCamera ? 'Compressing…' : null,
+          autoCompress: fromCamera,
         });
       }
 
@@ -209,26 +271,32 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
       setStatusLine(`Preparing photograph ${index + 1} of ${photos.length}`);
       setProgress(Math.round(((index + 0.3) / photos.length) * 100));
 
+      // Camera captures were already compressed on arrival; reuse that result
+      // rather than re-encoding an already compressed WebP.
       let compressed: CompressedImage;
-      try {
-        compressed = await compressImageFile(photo.file);
-      } catch (caught) {
-        failures += 1;
-        setPhotos((current) =>
-          current.map((entry) =>
-            entry.id === photo.id
-              ? {
-                  ...entry,
-                  status: 'failed',
-                  message:
-                    caught instanceof ImagePreparationError
-                      ? caught.message
-                      : 'That photograph could not be prepared.',
-                }
-              : entry,
-          ),
-        );
-        continue;
+      if (photo.compressed) {
+        compressed = photo.compressed;
+      } else {
+        try {
+          compressed = await compressImageFile(photo.file);
+        } catch (caught) {
+          failures += 1;
+          setPhotos((current) =>
+            current.map((entry) =>
+              entry.id === photo.id
+                ? {
+                    ...entry,
+                    status: 'failed',
+                    message:
+                      caught instanceof ImagePreparationError
+                        ? caught.message
+                        : 'That photograph could not be prepared.',
+                  }
+                : entry,
+            ),
+          );
+          continue;
+        }
       }
 
       setPhotos((current) =>
@@ -419,6 +487,16 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
     }
   }
 
+  const optionalFilled = [
+    lengthMm,
+    widthMm,
+    thicknessMm,
+    contamination,
+    defects,
+    origin,
+    notes,
+  ].filter((value) => value.trim().length > 0).length;
+
   return (
     <form onSubmit={(event) => void submit(event)} className="space-y-8" noValidate>
       {error ? (
@@ -511,7 +589,7 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
             capture="environment"
             className="sr-only"
             onChange={(event) => {
-              addFiles(event.target.files);
+              addFiles(event.target.files, { camera: true });
               event.target.value = '';
             }}
           />
@@ -656,19 +734,45 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
             </Select>
           </Field>
         </div>
+      </section>
 
-        <Alert tone="info">
-          <span className="flex gap-2">
-            <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-            <span>
-              Measure the sheet yourself if you can. A photograph cannot establish a dimension, and
-              resaikel will not estimate one. Leaving these blank is fine — you can confirm them on
-              the next screen.
+      {/* ------------------------------------------------------ optional details */}
+      <details className="group rounded-lg border border-line bg-surface">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+          <span className="flex items-baseline gap-2">
+            <span className="micro-label">03 — More detail</span>
+            <span className="text-xs text-ink-muted">
+              Dimensions, contamination, defects, origin, notes
             </span>
           </span>
-        </Alert>
+          <span className="flex items-center gap-2">
+            {optionalFilled > 0 ? (
+              <span className="micro-label tnum rounded-full bg-primary-soft px-2 py-0.5 text-primary">
+                {optionalFilled} added
+              </span>
+            ) : (
+              <span className="text-[0.6875rem] font-normal text-ink-faint">optional</span>
+            )}
+            <ChevronDown
+              className="size-4 text-ink-muted transition-transform group-open:rotate-180"
+              aria-hidden
+            />
+          </span>
+        </summary>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="space-y-4 border-t border-line px-4 pb-5 pt-4">
+          <Alert tone="info">
+            <span className="flex gap-2">
+              <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <span>
+                Measure the sheet yourself if you can. A photograph cannot establish a dimension, and
+                resaikel will not estimate one. Leaving these blank is fine — you can confirm them on
+                the next screen.
+              </span>
+            </span>
+          </Alert>
+
+          <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Length" htmlFor="lengthMm">
             <MeasurementInput
               id="lengthMm"
@@ -728,15 +832,16 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
           />
         </Field>
 
-        <Field label="Notes" htmlFor="notes" hint="Anything else worth recording.">
-          <Textarea
-            id="notes"
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            placeholder="Stored indoors, wrapped in cardboard for two months."
-          />
-        </Field>
-      </section>
+          <Field label="Notes" htmlFor="notes" hint="Anything else worth recording.">
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Stored indoors, wrapped in cardboard for two months."
+            />
+          </Field>
+        </div>
+      </details>
 
       {/* ---------------------------------------------------------------- submit */}
       <section className="space-y-4 border-t border-line pt-6">

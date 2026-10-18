@@ -132,9 +132,15 @@ function encodeCanvas(
   });
 }
 
-export function validateImageFile(file: File): string | null {
+export function validateImageFile(
+  file: File,
+  options: { allowOversize?: boolean } = {},
+): string | null {
   if (file.size === 0) return 'That file is empty.';
-  if (file.size > MAX_UPLOAD_BYTES) {
+  // A camera capture is compressed on the spot, so the raw shot is allowed to
+  // exceed the ceiling — only the compressed result that actually gets uploaded
+  // is held to it.
+  if (!options.allowOversize && file.size > MAX_UPLOAD_BYTES) {
     return `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is 8 MB.`;
   }
   if (!file.type.startsWith('image/')) {
@@ -145,9 +151,9 @@ export function validateImageFile(file: File): string | null {
 
 export async function compressImageFile(
   file: File,
-  options: { maxEdge?: number; quality?: number } = {},
+  options: { maxEdge?: number; quality?: number; allowOversize?: boolean } = {},
 ): Promise<CompressedImage> {
-  const validationError = validateImageFile(file);
+  const validationError = validateImageFile(file, options);
   if (validationError) throw new ImagePreparationError(validationError);
 
   const maxEdge = options.maxEdge ?? 1600;
