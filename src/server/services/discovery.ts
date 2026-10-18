@@ -396,6 +396,7 @@ function buildOpportunityDocument({ input, entry, ranked }: BuildOpportunityPara
       targetSegments: candidate.kind === 'template' ? candidate.targetSegments : [],
       shortfallDetected: buyerMatches.shortfallDetected,
     },
+    rank: ranked?.rank ?? Number.MAX_SAFE_INTEGER,
     ranking: ranked
       ? {
           rank: ranked.rank,
