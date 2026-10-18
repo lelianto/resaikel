@@ -78,12 +78,18 @@ export const materialConfirmSchema = z.object({
   patch: materialPatchSchema.optional(),
 });
 
-export const photoRegisterSchema = z.object({
-  storagePath: z.string().trim().min(10).max(400),
+/**
+ * Metadata fields that accompany a photo's bytes in a multipart upload.
+ *
+ * Form values arrive as strings, so numeric fields are coerced. The storage path
+ * is deliberately absent: the server derives it from the authenticated tenant and
+ * material, never from a client claim.
+ */
+export const photoUploadSchema = z.object({
   fileName: z.string().trim().min(1).max(120),
-  width: z.number().int().positive().max(20_000).nullable().optional(),
-  height: z.number().int().positive().max(20_000).nullable().optional(),
-  order: z.number().int().min(0).max(20).default(0),
+  width: z.coerce.number().int().positive().max(20_000).nullable().optional(),
+  height: z.coerce.number().int().positive().max(20_000).nullable().optional(),
+  order: z.coerce.number().int().min(0).max(20).default(0),
 });
 
 export const assumptionsSchema = z.record(z.string().max(60), z.number().finite());

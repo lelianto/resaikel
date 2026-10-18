@@ -47,8 +47,12 @@ export interface ApiRequestOptions {
 }
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  // FormData carries its own multipart content-type (with the boundary), so the
+  // browser must set that header itself; forcing JSON here would corrupt it.
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers: Record<string, string> = { accept: 'application/json' };
-  if (options.body !== undefined) headers['content-type'] = 'application/json';
+  if (options.body !== undefined && !isFormData) headers['content-type'] = 'application/json';
   if (options.idempotencyKey) headers['idempotency-key'] = options.idempotencyKey;
 
   let response: Response;
@@ -57,7 +61,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       method: options.method ?? 'GET',
       headers,
       credentials: 'same-origin',
-      ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
+      ...(options.body !== undefined
+        ? { body: isFormData ? (options.body as FormData) : JSON.stringify(options.body) }
+        : {}),
       ...(options.signal ? { signal: options.signal } : {}),
     });
   } catch {
