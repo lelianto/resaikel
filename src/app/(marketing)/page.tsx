@@ -38,33 +38,33 @@ export const metadata: Metadata = {
 const INTELLIGENCES = [
   {
     index: '01',
-    title: 'Material intelligence',
+    title: 'Material',
     icon: Boxes,
-    body: 'Describe visible category, condition, contamination, and restrictions, while refusing to guess dimensions.',
+    body: 'Reads category, condition and contamination from your photos — and refuses to guess dimensions.',
   },
   {
     index: '02',
-    title: 'Product intelligence',
+    title: 'Product',
     icon: Ruler,
-    body: 'Propose products from a curated catalogue of validated specifications, parameterised inside declared bounds. Never invented geometry.',
+    body: 'Proposes products only from a validated catalogue, inside declared bounds. Never invented geometry.',
   },
   {
     index: '03',
-    title: 'Manufacturing intelligence',
+    title: 'Manufacturing',
     icon: Factory,
-    body: 'Check every gate deterministically: material family, sheet size, thickness, contamination, tooling. Then nest real parts with real kerf.',
+    body: 'Runs deterministic gates, then nests real parts with real kerf. No fit, no pass.',
   },
   {
     index: '04',
-    title: 'Market intelligence',
+    title: 'Market',
     icon: Package,
-    body: 'Report price only from labelled evidence, with its freshness and quality stated. No evidence means “Insufficient Market Data”, not a guess.',
+    body: 'Prices only from labelled evidence. None? “Insufficient Market Data”, never a guess.',
   },
   {
     index: '05',
-    title: 'Buyer intelligence',
+    title: 'Buyer',
     icon: Users,
-    body: 'Name categories of buyer that could want it, and surface registered demand that its owner consented to share. Never a brand that has not asked.',
+    body: 'Names buyer categories and consented demand — never a brand that hasn’t asked.',
   },
 ] as const;
 
@@ -81,65 +81,65 @@ const PIPELINE = [
   {
     step: '01',
     title: 'Photograph and describe',
-    body: 'Upload up to four compressed photographs. The vision model describes only what it can see: category, condition, contamination and restrictions. Measurements are deliberately excluded from the prompt, because a photograph cannot establish one.',
+    body: 'Up to four photos. The model reports only what it can see — never a measurement.',
     aside: 'Client-side compression, server-side byte-level validation.',
   },
   {
     step: '02',
     title: 'Confirm by hand',
-    body: 'You correct and confirm the properties. Every attribute records whether it was AI inferred, user confirmed, measured, or unknown. Confirmation is blocked until critical fields are human verified.',
+    body: 'You verify every property. Each field is tagged inferred, confirmed, measured, or unknown.',
     aside: 'An AI inference is never treated as a measurement.',
   },
   {
     step: '03',
     title: 'Discover candidates',
-    body: 'The model may only select from a curated catalogue of validated specifications, and may only set parameters inside their declared bounds. Anything that cannot be substantiated is rejected before it reaches the engines.',
+    body: 'The model picks only from the validated catalogue, inside declared bounds. The rest is dropped.',
     aside: 'Unknown templates, out-of-range parameters and unsafe claims are all dropped.',
   },
   {
     step: '04',
     title: 'Apply the gates',
-    body: 'Six ordered checks: material family, sheet dimensions, thickness, condition and contamination, whether every panel fits, and whether the stock yields at least one unit. A failure removes the candidate from ranking.',
+    body: 'Six ordered checks, from material family to one-unit yield. Any failure drops the candidate.',
     aside: 'Rejection reasons are always stated.',
   },
   {
     step: '05',
     title: 'Cost it transparently',
-    body: 'Eleven cost lines, each carrying its own assumption and its own derivation. Integer minor units throughout, with a single half-up rounding step. The platform fee is charged on the sale, so it is excluded from production cost.',
+    body: 'Eleven cost lines, each showing its working. Integer minor units, one rounding step.',
     aside: 'Every figure is editable and shows its working.',
   },
   {
     step: '06',
     title: 'Evidence the market',
-    body: 'Prices come from a curated reference set, aggregated to a median with 25th and 75th percentiles. Each row is labelled as a transaction, quotation, listing, or estimate, and the set is scored for quality and freshness.',
+    body: 'A labelled reference set, aggregated to a median with p25/p75 and a freshness score.',
     aside: 'No evidence produces Insufficient Market Data, not a price.',
   },
   {
     step: '07',
     title: 'Match buyers',
-    body: 'Buyer output is a category of buyer with the matched factors shown, or a registered request whose owner consented to be shared. Quantity shortfalls against available capacity are flagged rather than smoothed over.',
+    body: 'Buyer categories, or consented registered demand. Capacity shortfalls are flagged, not hidden.',
     aside: 'No company is named unless it registered itself.',
   },
   {
     step: '08',
     title: 'Rank and explain',
-    body: 'Hard gates run before any score. Viable candidates are scored on feasibility, economic value, material utilisation, buyer compatibility, evidence quality, and simplicity, with an explanation per dimension.',
+    body: 'Gates first, then a score per dimension — each with its own explanation.',
     aside: 'Unknown dimensions are excluded and reported, never scored as zero.',
   },
 ] as const;
 
 const IMPACT_MEASURED = [
-  'Material records and confirmed quantities',
-  'Sheet area allocated to evaluated products',
-  'Material consumed by completed production records',
-  'Cutting waste estimated by the deterministic nesting engine',
+  'Confirmed material records and quantities',
+  'Sheet area allocated to products',
+  'Material consumed by completed builds',
+  'Cutting waste from the nesting engine',
 ] as const;
 
 const IMPACT_NOT_CLAIMED = [
   'Carbon emissions avoided',
-  'Landfill diversion without a completed reuse record',
-  'Environmental certification or regulatory compliance',
-  'Impact derived only from an AI recommendation',
+  'Landfill diversion without a reuse record',
+  'Certification or regulatory compliance',
+  'Impact from an AI recommendation alone',
 ] as const;
 
 const COMMUNITY_AREAS = [
@@ -188,8 +188,8 @@ export default function LandingPage() {
               </h1>
 
               <p className="max-w-xl text-[0.9375rem] leading-relaxed text-ink-muted sm:text-base">
-                resaikel transforms leftover materials into manufacturable products and real business
-                opportunities through AI-powered material, production and market intelligence.
+                Photograph leftover material and get products you can actually build, cost and sell —
+                every number backed by evidence.
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -265,7 +265,7 @@ export default function LandingPage() {
                 />
               </div>
               <p className="absolute bottom-2 left-2 z-30 max-w-[13rem] text-xs font-semibold leading-relaxed text-ink-muted">
-                Measured, not imagined. Every number keeps its evidence attached.
+                Measured, not imagined — every number keeps its evidence.
               </p>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="Interactive preview"
             title="From a photograph to a ranked opportunity"
-            description="Walk the four steps. Nesting yield, cost lines, price bands, and buyer matches are computed by the real engine from a fixed sample input."
+            description="Walk four steps. Yield, cost, price and buyers are computed live by the real engine on a fixed sample."
           />
           <WorkflowPreview scenarios={scenarios} locale={serverConfig.defaults.locale} />
         </Container>
@@ -298,7 +298,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="How it works"
             title="Five questions, answered in order"
-            description="Each layer can only use what the layer above it established. That ordering is what stops a plausible sentence from being mistaken for an engineering result."
+            description="Each layer uses only what the one above it proved — so a good sentence is never mistaken for a result."
           />
 
           <ol className="grid gap-x-8 gap-y-8" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(20rem, 100%), 1fr))' }}>
@@ -327,8 +327,8 @@ export default function LandingPage() {
           <SectionRule index="03" label="Eight steps, and the order is the point" />
           <SectionHeading
             eyebrow="The pipeline"
-            title="From a photograph to a ranked opportunity, step by step"
-            description="Each step may only use what the step before it established. That is what stops a plausible sentence from being mistaken for an engineering result."
+            title="Eight steps, and each builds on the last"
+            description="No step may use what an earlier one didn’t establish."
           />
           <ol className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
             {PIPELINE.map((entry) => (
@@ -352,7 +352,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="Reference"
             title="The five verdicts, and the five sort modes"
-            description="These are the exact states a candidate can be in, and the exact ways you can order them."
+            description="Every state a candidate can be in, and every way to order them."
           />
 
           <div className="grid gap-8 lg:grid-cols-2">
@@ -405,7 +405,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="Examples"
             title="What the catalogue actually contains"
-            description="Six of the validated specifications currently in the catalogue, each with a real parts list, tooling requirement and labour time. Additions must be genuinely buildable, not imagined."
+            description="Six validated specs, each with a real parts list, tooling and labour time. If it can’t be built, it isn’t here."
           />
 
           <ul className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(17rem, 100%), 1fr))' }}>
@@ -457,7 +457,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="Impact"
             title="Count what was reused. Leave the rest unclaimed."
-            description="resaikel measures practical material movement from registered stock to completed work. It does not turn assumptions into sustainability statistics."
+            description="We measure real material movement from stock to finished work — not assumptions dressed up as statistics."
           />
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
@@ -498,7 +498,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="Sustainability"
             title="Measured, not asserted"
-            description="Sustainability claims are easy to fabricate and hard to verify, so resaikel reports only what it can count."
+            description="Easy to fabricate, hard to verify. So we report only what we can count."
           />
 
           <div className="space-y-4">
@@ -516,15 +516,8 @@ export default function LandingPage() {
               ))}
             </dl>
             <p className="text-sm leading-relaxed text-ink-muted">
-              Waste reduction is reported as arithmetic on your own records: sheet area registered,
-              sheet area consumed by a completed project, and the difference. No carbon figure is
-              shown, because there is no documented methodology behind one yet. An undocumented
-              number is worse than no number.
-            </p>
-            <p className="text-xs leading-relaxed text-ink-faint">
-              The same principle applies to the AI: resaikel does not claim a proprietary trained
-              model. Outcome data is recorded so that recommendation quality can be evaluated later,
-              and that is all that is claimed.
+              Waste reduction is arithmetic on your own records — area in, area used, the difference.
+              No carbon figure, because there’s no methodology behind one yet.
             </p>
           </div>
         </Container>
@@ -537,22 +530,22 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="What it will not do"
             title="The limits are part of the product"
-            description="A platform that turns waste into business decisions earns trust by being explicit about the edge of what it knows."
+            description="Trust comes from being explicit about the edge of what we know."
           />
 
           <div className="grid gap-6 lg:grid-cols-3">
             {[
               {
                 title: 'It will not certify anything',
-                body: 'No load rating, fire rating, food-contact safety, or packaging standard compliance. A successful 2D layout does not prove structural safety.',
+                body: 'No load, fire, food-contact or packaging-standard rating. A 2D layout is not a safety proof.',
               },
               {
                 title: 'It will not invent a price',
-                body: 'Prices come from labelled evidence with its source type and freshness shown. Listing prices are labelled as asking prices and never presented as proof of demand. No evidence means Insufficient Market Data.',
+                body: 'Prices trace to labelled evidence. Listings are asking prices, never proof of demand.',
               },
               {
                 title: 'It will not name a buyer',
-                body: 'Buyer output is always a category of buyer, or a registered request whose owner consented to be matched. No brand is ever presented as an active purchaser without their own registration.',
+                body: 'Always a buyer category, or a consented request. No brand is shown as a buyer unless it registered.',
               },
             ].map((entry) => (
               <div key={entry.title} className="space-y-2 border-t border-line pt-5">
@@ -571,7 +564,7 @@ export default function LandingPage() {
           <SectionHeading
             eyebrow="Community"
             title="Useful knowledge should survive the first build."
-            description="The community layer is being designed around production outcomes, practical lessons, and consent. It is not a feed of unverified AI ideas."
+            description="Built around production outcomes, practical lessons and consent — not a feed of unverified AI ideas."
           />
           <div className="grid gap-8 lg:grid-cols-3">
             {COMMUNITY_AREAS.map((area) => {
@@ -586,8 +579,8 @@ export default function LandingPage() {
             })}
           </div>
           <p className="border-t border-line pt-6 text-sm leading-relaxed text-ink-muted">
-            Community publishing is not active in this release. Start by creating a material record
-            and keep your production evidence ready.
+            Publishing isn’t live yet. Start a material record and keep your production evidence
+            ready.
           </p>
         </Container>
       </section>
@@ -600,7 +593,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="About"
               title="A practical bridge between leftover material and useful work."
-              description="resaikel exists to make small-scale circular manufacturing easier to reason about. It combines visual assistance with deterministic engineering and commercial checks."
+              description="Making small-scale circular manufacturing easier to reason about — visual assistance, deterministic engineering, and commercial checks."
             />
             <Image
               src={rekaMascot}
@@ -612,17 +605,15 @@ export default function LandingPage() {
             <div>
               <h3 className="text-[0.9375rem] font-medium text-ink">Why this product exists</h3>
               <p className="mt-3 text-sm leading-7 text-ink-muted">
-                Material reuse advice is often inspirational but incomplete. A product idea is only
-                useful when the material fits, the required process is available, the cost is
-                visible, and uncertainty is stated clearly.
+                Reuse advice is often inspiring but incomplete. An idea is only useful when the
+                material fits, the process exists, the cost is visible, and uncertainty is stated.
               </p>
             </div>
             <div>
               <h3 className="text-[0.9375rem] font-medium text-ink">How AI is used</h3>
               <p className="mt-3 text-sm leading-7 text-ink-muted">
-                AI helps describe photographs, select from a curated catalogue, and explain computed
-                results. Human confirmation and deterministic engines remain responsible for the
-                facts that affect production and money.
+                AI describes photos, picks from the catalogue, and explains results. People and
+                deterministic engines own every fact that touches production or money.
               </p>
             </div>
           </div>
@@ -637,7 +628,7 @@ export default function LandingPage() {
               align="center"
               eyebrow="Start here"
               title="Photograph the offcuts. See what they are worth."
-              description="Upload a material, confirm what it actually is, and get products that can be built, costed, and sold with every assumption visible."
+              description="Upload a material, confirm what it is, and get products you can build, cost and sell — every assumption visible."
             />
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link href="/sign-in">
@@ -653,7 +644,7 @@ export default function LandingPage() {
             </div>
             <p className="flex items-center justify-center gap-2 text-xs text-ink-faint">
               <Sparkle className="size-3.5" aria-hidden />
-              Free to try. No payment processing, and no transaction is created.
+              Free to try. No payments, no transactions.
             </p>
           </div>
         </Container>
@@ -668,10 +659,8 @@ export default function LandingPage() {
               <span className="micro-label">Everything on this page</span>
             </div>
             <p className="max-w-3xl text-xs leading-relaxed text-ink-muted">
-              Every example, price and feasibility result on this site is generated from a fixed
-              sample scenario through the real engines. No customer logos, testimonials or market
-              statistics are shown, because resaikel has no customers to cite and no market data of
-              its own to quote.
+              Every example, price and feasibility result here runs through the real engines on a
+              fixed sample. No customer logos, testimonials or market stats — we have none to cite.
             </p>
           </div>
         </Container>
