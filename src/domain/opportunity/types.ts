@@ -76,6 +76,13 @@ export interface OpportunityDocument extends BaseDocument {
   readonly summary: OpportunitySummaryNumbers;
   readonly ranking: OpportunityRanking | null;
   /**
+   * Denormalised copy of {@link OpportunityRanking.rank}, kept at the top level
+   * so the comparison grid can order on it. A query that orders by a field skips
+   * documents that lack it, so every opportunity must carry `rank` or it would be
+   * invisible to that list; unranked candidates sort last.
+   */
+  readonly rank: number;
+  /**
    * Buyer matches are embedded rather than referenced: they are small, derived
    * from the opportunity, and needed by both the comparison grid and the detail
    * page, so a separate read would buy nothing.

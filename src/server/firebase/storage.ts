@@ -84,10 +84,33 @@ export function detectImageType(bytes: Buffer): ImageMimeType | null {
   return null;
 }
 
-export async function inspectImageObject(storagePath: string): Promise<ImageInspection> {
-  const [buffer] = await adminBucket().file(storagePath).download();
-  const [metadata] = await adminBucket().file(storagePath).getMetadata();
+/** File extension (no dot) for a detected image type. */
+export function extensionForImageType(type: ImageMimeType): string {
+  switch (type) {
+    case 'image/png':
+      return 'png';
+    case 'image/webp':
+      return 'webp';
+    case 'image/heic':
+      return 'heic';
+    case 'image/heif':
+      return 'heif';
+    case 'image/jpeg':
+    default:
+      return 'jpg';
+  }
+}
 
+/**
+ * Validates a buffer as an image and derives its true type, size and digest.
+ *
+ * This is the single place where "is this actually an image we accept?" is
+ * decided, from the bytes alone - the declared content type is never trusted.
+ */
+export async function inspectImageBytes(
+  buffer: Buffer,
+  declaredType: string | null = null,
+): Promise<ImageInspection> {
   const sizeBytes = buffer.byteLength;
   if (sizeBytes === 0) throw new UnsupportedImageError('The uploaded file is empty.');
   if (sizeBytes > serverConfig.upload.maxBytes) {
@@ -109,11 +132,39 @@ export async function inspectImageObject(storagePath: string): Promise<ImageInsp
 
   return {
     detectedType,
-    declaredType: typeof metadata.contentType === 'string' ? metadata.contentType : null,
+    declaredType,
     sizeBytes,
     sha256: createHash('sha256').update(buffer).digest('hex'),
     bytes: buffer,
   };
+}
+
+export async function inspectImageObject(storagePath: string): Promise<ImageInspection> {
+  const [buffer] = await adminBucket().file(storagePath).download();
+  const [metadata] = await adminBucket().file(storagePath).getMetadata();
+
+  return inspectImageBytes(
+    buffer,
+    typeof metadata.contentType === 'string' ? metadata.contentType : null,
+  );
+}
+
+/**
+ * Writes an object to the private bucket with the Admin SDK.
+ *
+ * The upload is authorised by the server session (the single source of truth for
+ * who may act), so the browser never needs a live Firebase client session to
+ * store a photo. `resumable: false` keeps a small, already-compressed image a
+ * single request.
+ */
+export async function saveObject(
+  storagePath: string,
+  bytes: Buffer,
+  contentType: string,
+): Promise<void> {
+  await adminBucket()
+    .file(storagePath)
+    .save(bytes, { contentType, resumable: false, metadata: { contentType } });
 }
 
 export async function getObjectMetadata(storagePath: string): Promise<StoredObject | null> {

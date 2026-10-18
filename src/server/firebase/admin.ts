@@ -27,7 +27,9 @@ import { assertProductionEnv, emulatorConfig, isEmulatorMode, serverConfig } fro
 if (isEmulatorMode) {
   process.env.FIRESTORE_EMULATOR_HOST ??= `${emulatorConfig.firestoreHost}:${emulatorConfig.firestorePort}`;
   process.env.FIREBASE_AUTH_EMULATOR_HOST ??= `${emulatorConfig.authHost}:${emulatorConfig.authPort}`;
-  process.env.FIREBASE_STORAGE_EMULATOR_HOST ??= `http://${emulatorConfig.storageHost}:${emulatorConfig.storagePort}`;
+  // The Admin/Storage SDK wants host:port here with no protocol; a leading
+  // `http://` makes newer @google-cloud/storage throw on the first request.
+  process.env.FIREBASE_STORAGE_EMULATOR_HOST ??= `${emulatorConfig.storageHost}:${emulatorConfig.storagePort}`;
 }
 
 function adminApp(): App {
@@ -59,16 +61,28 @@ function adminApp(): App {
   });
 }
 
-let firestoreInstance: Firestore | null = null;
+// `getFirestore()` returns one instance per Admin app, shared process-wide, and
+// `settings()` may be applied to it exactly once. Next's dev server and bundle
+// splitting evaluate this module more than once, each with its own module-level
+// cache, so the instance is cached on `globalThis` instead — that is the only
+// state shared across those evaluations — and `settings()` is guarded so a second
+// evaluation cannot call it again on the already-initialised instance.
+const FIRESTORE_CACHE_KEY = Symbol.for('resaikel.adminFirestore');
+type FirestoreGlobal = typeof globalThis & { [FIRESTORE_CACHE_KEY]?: Firestore };
 
 export function adminDb(): Firestore {
-  if (firestoreInstance) return firestoreInstance;
+  const store = globalThis as FirestoreGlobal;
+  if (store[FIRESTORE_CACHE_KEY]) return store[FIRESTORE_CACHE_KEY];
 
   const db = getFirestore(adminApp());
   // Documents are built explicitly rather than spread from request bodies, but
   // this removes an entire class of runtime failure from optional fields.
-  db.settings({ ignoreUndefinedProperties: true });
-  firestoreInstance = db;
+  try {
+    db.settings({ ignoreUndefinedProperties: true });
+  } catch {
+    // Already initialised by an earlier module evaluation; the setting stands.
+  }
+  store[FIRESTORE_CACHE_KEY] = db;
   return db;
 }
 

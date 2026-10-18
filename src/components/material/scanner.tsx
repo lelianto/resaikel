@@ -18,17 +18,14 @@ import {
 } from '@/domain/materials/types';
 import type { MaterialCategory, ConditionGrade, QuantityUnit } from '@/domain/materials/types';
 import { ApiError, apiRequest, newIdempotencyKey } from '@/lib/api-client';
-import { cloudStorage } from '@/lib/firebase/client';
 import {
   ImagePreparationError,
   compressImageFile,
   dedupeFiles,
-  extensionForMimeType,
   formatBytes,
   validateImageFile,
   type CompressedImage,
 } from '@/lib/image';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 /**
  * Material scanner.
@@ -57,37 +54,13 @@ interface DraftPhoto {
 const MAX_PHOTOS = 4;
 
 /**
- * Turns a direct-to-storage upload failure into a message that points at the
- * actual cause. Firebase throws a `StorageError` carrying a `storage/*` code;
- * surfacing it (and logging the raw error) is the difference between a
- * diagnosable problem and an opaque "it didn't work".
+ * Fallback message for an upload failure that is not already an {@link ApiError}
+ * (the upload route returns those with a diagnosable message of their own). This
+ * only catches unexpected throws, so it logs the raw error and stays generic.
  */
 function describeUploadError(caught: unknown): string {
   console.error('Photo upload failed', caught);
 
-  const code =
-    typeof caught === 'object' && caught !== null && 'code' in caught
-      ? String((caught as { code: unknown }).code)
-      : null;
-
-  switch (code) {
-    case 'storage/unauthorized':
-      return 'Upload refused: you do not have permission to store photos here. Sign in again and retry.';
-    case 'storage/unauthenticated':
-      return 'Upload refused because your session expired. Sign in again and retry.';
-    case 'storage/quota-exceeded':
-      return 'Upload failed: the storage bucket is out of space.';
-    case 'storage/retry-limit-exceeded':
-      return 'The upload timed out. Check your connection and try again.';
-    case 'storage/canceled':
-      return 'The upload was cancelled.';
-    case 'storage/unknown':
-      return 'The upload could not reach storage. This is usually a bucket or CORS configuration problem.';
-    default:
-      break;
-  }
-
-  if (code) return `The upload did not complete (${code}).`;
   if (caught instanceof Error && caught.message) {
     return `The upload did not complete: ${caught.message}`;
   }
@@ -259,7 +232,6 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
 
   async function prepareAndUpload(
     materialId: string,
-    uploadPathPrefix: string,
   ): Promise<{ uploaded: number; failures: number }> {
     let uploaded = 0;
     let failures = 0;
@@ -306,28 +278,22 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
       );
 
       const blob = compressed.blob;
-      const extension = extensionForMimeType(compressed.mimeType);
-      const storagePath = `${uploadPathPrefix}/photo_${index + 1}_${Math.random()
-        .toString(36)
-        .slice(2, 10)}.${extension}`;
 
       try {
         setStatusLine(`Uploading photograph ${index + 1} of ${photos.length}`);
-        const objectRef = ref(cloudStorage(), storagePath);
-        await uploadBytes(objectRef, blob, { contentType: compressed.mimeType });
-        // Confirms the object is actually readable from the client's perspective
-        // before the server is asked to validate it.
-        await getDownloadURL(objectRef).catch(() => undefined);
+        // The bytes go to our own authenticated route, which stores them with the
+        // Admin SDK. The upload rides the session cookie, so it never depends on a
+        // live Firebase client session the way a direct-to-storage upload would.
+        const form = new FormData();
+        form.append('file', blob, compressed.fileName);
+        form.append('fileName', compressed.fileName);
+        form.append('order', String(index));
+        if (compressed.width) form.append('width', String(compressed.width));
+        if (compressed.height) form.append('height', String(compressed.height));
 
         await apiRequest(`/api/materials/${materialId}/photos`, {
           method: 'POST',
-          body: {
-            storagePath,
-            fileName: compressed.fileName,
-            width: compressed.width,
-            height: compressed.height,
-            order: index,
-          },
+          body: form,
         });
 
         uploaded += 1;
@@ -378,7 +344,6 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
 
       const created = await apiRequest<{
         material: { id: string };
-        uploadPathPrefix: string;
       }>('/api/materials', {
         method: 'POST',
         idempotencyKey: newIdempotencyKey(),
@@ -401,7 +366,7 @@ export function MaterialScanner({ uploadMaxBytes }: { uploadMaxBytes: number }) 
       });
 
       setPhase('uploading');
-      const upload = await prepareAndUpload(created.material.id, created.uploadPathPrefix);
+      const upload = await prepareAndUpload(created.material.id);
 
       if (upload.uploaded === 0) {
         throw new ApiError(

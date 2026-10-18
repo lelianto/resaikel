@@ -40,7 +40,7 @@ import type { Material, MaterialPhoto } from '../src/domain/materials/types';
 import type { MaterialDocument, MaterialPhotoDocument } from '../src/server/repos/types';
 
 const DEMO_USER = {
-  uid: 'demo-user',
+  uid: 'demoUser01',
   email: 'demo@resaikel.test',
   password: 'resaikel-demo',
   displayName: 'Demo Fabricator',
@@ -63,7 +63,7 @@ function log(message: string): void {
 
 async function ensureEmulatorReachable(): Promise<void> {
   try {
-    await adminDb().collection('__seed_probe__').limit(1).get();
+    await adminDb().collection('seed_probe').limit(1).get();
   } catch (error) {
     console.error(
       '\nCould not reach the Firestore emulator.\n' +
