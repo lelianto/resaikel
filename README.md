@@ -1,65 +1,65 @@
 <div align="center">
 
-<img src="./assets/reka-bowerbird-mascot.png" alt="Reka, maskot bowerbird resaikel, membawa kemasan dari material bekas" width="300" />
+<img src="./assets/reka-bowerbird-mascot.png" alt="Reka, resaikel's bowerbird mascot, carrying packaging made from reclaimed material" width="300" />
 
 # resaikel
 
 ### Turn waste into worth.
 
-Platform circular manufacturing intelligence untuk mengubah material sisa menjadi produk yang dapat dibuat, dihitung biayanya, dan dicocokkan dengan kebutuhan pasar.
+A circular manufacturing intelligence platform that turns leftover material into products you can actually build, cost out, and match to real market demand.
 
 [Architecture](docs/ARCHITECTURE.md) · [AI pipeline](docs/AI_PIPELINE.md) · [Security](docs/SECURITY.md)
 
 </div>
 
-## Tentang resaikel
+## About resaikel
 
-resaikel membantu pengguna memotret material sisa, mengonfirmasi kondisi fisiknya, lalu mengevaluasi produk yang mungkin dibuat darinya.
+resaikel helps users photograph leftover material, confirm its physical condition, and then evaluate the products that could be made from it.
 
-Prosesnya berjalan secara berurutan:
+The process runs in sequence:
 
-1. AI mendeskripsikan atribut material yang terlihat pada foto.
-2. Pengguna mengonfirmasi ukuran dan fakta fisik.
-3. AI memilih kandidat dari katalog produk yang telah dibatasi.
-4. deterministic engine memeriksa material, ukuran, alat, proses, dan cutting layout.
-5. cost engine menghitung biaya menggunakan integer minor units.
-6. market dan buyer engine menyusun opportunity berdasarkan evidence yang tersedia.
-7. Opportunity yang dipilih menyimpan hasil produksi, biaya, penjualan, dan material aktual tanpa mengubah estimasi awal.
+1. AI describes the material attributes visible in the photo.
+2. The user confirms dimensions and physical facts.
+3. AI selects candidates from a bounded product catalogue.
+4. A deterministic engine checks material, dimensions, tools, process, and cutting layout.
+5. A cost engine computes costs using integer minor units.
+6. Market and buyer engines assemble opportunities based on the available evidence.
+7. A selected opportunity records actual production, cost, sales, and material without altering the original estimates.
 
-Model bahasa tidak menentukan ukuran, kelayakan produksi, biaya, atau ranking. Nilai tersebut berasal dari input manusia dan deterministic domain engine.
+The language model does not decide dimensions, production feasibility, cost, or ranking. Those values come from human input and the deterministic domain engine.
 
 ## Reka
 
-**Reka** adalah maskot bowerbird orisinal milik resaikel. Bowerbird dikenal sebagai burung yang mengumpulkan dan menyusun benda dengan teliti. Karakter ini mewakili cara resaikel menemukan kegunaan baru dari material yang sering diabaikan.
+**Reka** is resaikel's original bowerbird mascot. Bowerbirds are known for carefully collecting and arranging objects. The character represents how resaikel finds new uses for material that is often overlooked.
 
-Reka membawa prinsip utama produk: kreatif dalam melihat kemungkinan, tetapi tetap disiplin terhadap fakta.
+Reka carries the product's core principle: creative about what's possible, but disciplined about the facts.
 
-File maskot tersedia di [`assets/reka-bowerbird-mascot.png`](assets/reka-bowerbird-mascot.png).
+The mascot file is available at [`assets/reka-bowerbird-mascot.png`](assets/reka-bowerbird-mascot.png).
 
-## Prinsip produk
+## Product principles
 
-- **Measured, never guessed.** Foto tidak digunakan untuk menebak dimensi, berat, komposisi, grade, atau kekuatan struktural.
-- **Catalogue-bound discovery.** AI hanya dapat memilih spesifikasi yang diberikan kepadanya.
-- **Hard gates before scores.** Produk yang tidak dapat dibuat tidak akan diselamatkan oleh skor ekonomi yang tinggi.
-- **Explainable money.** Semua perhitungan biaya menggunakan minor currency units dan basis yang dapat diperiksa.
-- **Unknown stays unknown.** Data yang tidak tersedia tidak digantikan dengan angka buatan.
-- **Consent-aware matching.** Nama bisnis hanya ditampilkan jika pemiliknya mendaftar dan memberi persetujuan untuk matching.
+- **Measured, never guessed.** Photos are never used to guess dimensions, weight, composition, grade, or structural strength.
+- **Catalogue-bound discovery.** AI can only choose from the specifications it is given.
+- **Hard gates before scores.** A product that cannot be built is never rescued by a high economic score.
+- **Explainable money.** Every cost calculation uses minor currency units and an inspectable basis.
+- **Unknown stays unknown.** Missing data is never replaced with an invented number.
+- **Consent-aware matching.** A business name is shown only if its owner registered and consented to matching.
 
-## Menjalankan project
+## Running the project
 
-### Persyaratan
+### Requirements
 
-- Node.js 20.11 atau lebih baru
-- Java runtime untuk Firestore emulator
+- Node.js 20.11 or newer
+- A Java runtime for the Firestore emulator
 
-### Instalasi
+### Installation
 
 ```bash
 npm install
 cp .env.example .env.local
 ```
 
-Jalankan layanan pada terminal terpisah:
+Run the services in separate terminals:
 
 ```bash
 # Terminal 1
@@ -72,60 +72,60 @@ npm run seed
 npm run dev -- --port 3000
 ```
 
-Buka [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-Demo account lokal:
+Local demo account:
 
 ```text
 Email: demo@resaikel.test
 Password: resaikel-demo
 ```
 
-Gemini API key tidak diperlukan untuk local development. Jika `GEMINI_API_KEY` tidak tersedia dan `AI_MODE=auto`, aplikasi memakai offline mock adapter yang deterministic dan tidak menimbulkan biaya API.
+A Gemini API key is not required for local development. If `GEMINI_API_KEY` is not available and `AI_MODE=auto`, the app uses a deterministic offline mock adapter that incurs no API cost.
 
-## Fitur utama
+## Key features
 
-- Authentication dengan Google atau email dan password
-- Secure HTTP-only session cookie dan organization-level tenancy
-- Multi-photo material upload dengan client compression dan server validation
-- AI-assisted material description dengan field-level confidence
-- Human confirmation gate untuk fakta fisik
-- Curated product catalogue dengan bounded parameters
-- Deterministic feasibility engine dan 2D guillotine nesting
-- Explainable cost model dengan sebelas cost lines
+- Authentication with Google or email and password
+- Secure HTTP-only session cookies and organization-level tenancy
+- Multi-photo material upload with client compression and server validation
+- AI-assisted material description with field-level confidence
+- Human confirmation gate for physical facts
+- Curated product catalogue with bounded parameters
+- Deterministic feasibility engine and 2D guillotine nesting
+- Explainable cost model with eleven cost lines
 - Evidence-based market assessment
-- Consent-aware buyer matching dan capacity shortfall detection
+- Consent-aware buyer matching and capacity shortfall detection
 - Hard-gated opportunity ranking
 - Estimated-versus-actual production outcome tracking
-- Responsive UI menggunakan Manrope dan maskot Reka
+- Responsive UI using Manrope and the Reka mascot
 
-## Batas implementasi saat ini
+## Current implementation limits
 
-- Feasibility menggunakan model rectangular 2D, bukan analisis struktural atau model 3D.
-- Cutting layout menggunakan pendekatan guillotine yang konservatif.
-- Posisi defect belum dipetakan sebagai koordinat pada sheet.
-- Market evidence masih berupa curated sample data dan bukan hasil marketplace scraping.
-- Buyer matching bekerja pada category level kecuali terdapat registered demand.
-- Belum ada quotation, messaging, payment, atau transaction workflow.
-- Tidak ada carbon-saving claim karena belum tersedia metodologi yang tervalidasi.
+- Feasibility uses a rectangular 2D model, not structural analysis or a 3D model.
+- Cutting layout uses a conservative guillotine approach.
+- Defect positions are not yet mapped as coordinates on the sheet.
+- Market evidence is still curated sample data, not the result of marketplace scraping.
+- Buyer matching works at the category level unless registered demand exists.
+- There is no quotation, messaging, payment, or transaction workflow yet.
+- There are no carbon-saving claims, because no validated methodology is available yet.
 
-## Struktur repository
+## Repository structure
 
 ```text
 src/
-├── app/          Next.js pages, layouts, dan API routes
-├── components/   UI primitives dan feature components
+├── app/          Next.js pages, layouts, and API routes
+├── components/   UI primitives and feature components
 ├── domain/       Pure TypeScript domain engines
-├── ai/           Prompts, schemas, client, cache, dan mock adapter
-├── server/       Authentication, repositories, services, dan HTTP boundaries
-└── lib/          Shared configuration dan utilities
+├── ai/           Prompts, schemas, client, cache, and mock adapter
+├── server/       Authentication, repositories, services, and HTTP boundaries
+└── lib/          Shared configuration and utilities
 
-assets/           Brand dan mascot assets
+assets/           Brand and mascot assets
 docs/             Technical and product documentation
-tests/            Domain, AI contract, scenario, dan real-photo tests
+tests/            Domain, AI contract, scenario, and real-photo tests
 ```
 
-Domain layer tidak bergantung pada React, Firebase, browser, network, atau language model. Pemisahan ini membuat perhitungan inti dapat diuji secara deterministic.
+The domain layer does not depend on React, Firebase, the browser, the network, or a language model. This separation keeps the core calculations deterministically testable.
 
 ## Quality checks
 
@@ -136,11 +136,11 @@ npm run test:coverage
 npm run build
 ```
 
-Baseline saat ini: **195 tests passed dan 1 optional real-photo case skipped**.
+Current baseline: **195 tests passed and 1 optional real-photo case skipped**.
 
-Test suite mencakup money arithmetic, unit conversion, packing, feasibility gates, costing, market aggregation, buyer matching, ranking, AI schemas, catalogue enforcement, unsafe claims, caching, sample scenarios, dan real photograph validation.
+The test suite covers money arithmetic, unit conversion, packing, feasibility gates, costing, market aggregation, buyer matching, ranking, AI schemas, catalogue enforcement, unsafe claims, caching, sample scenarios, and real photograph validation.
 
-## Dokumentasi
+## Documentation
 
 - [Product requirements](docs/PRODUCT_REQUIREMENTS.md)
 - [Architecture](docs/ARCHITECTURE.md)
@@ -153,11 +153,11 @@ Test suite mencakup money arithmetic, unit conversion, packing, feasibility gate
 - [Refinement plan](docs/REFINEMENT_PLAN.md)
 - [Refinement report](docs/REFINEMENT_REPORT.md)
 
-## Teknologi
+## Technology
 
-Next.js 15, React 19, TypeScript strict mode, Tailwind CSS v4, Firebase Auth, Firestore, Cloud Storage, Google Gemini, Zod, dan Vitest.
+Next.js 15, React 19, TypeScript strict mode, Tailwind CSS v4, Firebase Auth, Firestore, Cloud Storage, Google Gemini, Zod, and Vitest.
 
-Tidak ada component framework, state-management library, atau perhitungan domain yang disembunyikan di dalam model.
+No component framework, state-management library, or domain calculation is hidden inside the model.
 
 ---
 
