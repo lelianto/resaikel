@@ -2,7 +2,6 @@
 
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Logo } from '@/components/signature/logo';
@@ -10,30 +9,47 @@ import { Button, IconButton } from '@/components/ui/button';
 import { Container } from '@/components/ui/layout';
 import { cn } from '@/lib/cn';
 
+/**
+ * The marketing site is a single page at `/`; the nav scrolls to in-page
+ * sections rather than routing. Each href is a hash that matches a section id
+ * on the landing page.
+ */
 const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/sign-in?next=/materials/new', label: 'Scan' },
-  { href: '/impact', label: 'Impact' },
-  { href: '/community', label: 'Community' },
-  { href: '/about', label: 'About' },
+  { id: 'top', label: 'Home' },
+  { id: 'how-it-works', label: 'How It Works' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'impact', label: 'Impact' },
+  { id: 'about', label: 'About' },
 ] as const;
 
 export function SiteHeader() {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<string>('top');
 
+  // Scroll-spy: highlight the nav item whose section is crossing the viewport.
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
 
-  const isActive = (href: string): boolean =>
-    href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+    for (const link of NAV_LINKS) {
+      const el = document.getElementById(link.id);
+      if (el) observer.observe(el);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-xl">
       <Container width="wide" className="flex h-14 items-center justify-between gap-6">
         <Link
-          href="/"
+          href="/#top"
           className="inline-flex min-h-11 items-center rounded-sm lg:min-h-0"
           aria-label="resaikel home"
         >
@@ -42,34 +58,28 @@ export function SiteHeader() {
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => {
-            const active = isActive(link.href);
+            const isActive = active === link.id;
             return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? 'page' : undefined}
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                aria-current={isActive ? 'true' : undefined}
                 className={cn(
                   'rounded-full px-3.5 py-2 text-[0.8125rem] font-medium transition-colors',
-                  active
+                  isActive
                     ? 'bg-primary-soft text-primary'
                     : 'text-ink-muted hover:bg-primary-soft hover:text-primary',
                 )}
               >
                 {link.label}
-              </Link>
+              </a>
             );
           })}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link
-            href="/sign-in"
-            className="rounded-sm px-3 py-2 text-[0.8125rem] text-ink-muted transition-colors hover:text-ink"
-          >
-            Sign in
-          </Link>
-          <Link href="/sign-in?next=/materials/new">
-            <Button size="sm">Scan material</Button>
+          <Link href="/sign-in">
+            <Button size="sm">Open App</Button>
           </Link>
         </div>
 
@@ -91,26 +101,26 @@ export function SiteHeader() {
       >
         <Container width="wide" className="flex flex-col gap-1 py-3">
           {NAV_LINKS.map((link) => {
-            const active = isActive(link.href);
+            const isActive = active === link.id;
             return (
-              <Link
-                key={link.href}
-                href={link.href}
+              <a
+                key={link.id}
+                href={`#${link.id}`}
                 onClick={() => setOpen(false)}
-                aria-current={active ? 'page' : undefined}
+                aria-current={isActive ? 'true' : undefined}
                 className={cn(
                   'rounded-sm px-3 py-2.5 text-sm transition-colors',
-                  active
+                  isActive
                     ? 'bg-primary-soft font-medium text-primary'
                     : 'text-ink-muted hover:bg-surface-subtle hover:text-ink',
                 )}
               >
                 {link.label}
-              </Link>
+              </a>
             );
           })}
-          <Link href="/sign-in?next=/materials/new" className="pt-2" onClick={() => setOpen(false)}>
-            <Button fullWidth>Scan material</Button>
+          <Link href="/sign-in" className="pt-2" onClick={() => setOpen(false)}>
+            <Button fullWidth>Open App</Button>
           </Link>
         </Container>
       </div>

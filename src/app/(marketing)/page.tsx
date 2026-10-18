@@ -1,8 +1,12 @@
 import {
   ArrowRight,
+  BookOpen,
   Boxes,
+  CheckCircle2,
   Compass,
   Factory,
+  MessageCircle,
+  MinusCircle,
   Package,
   Ruler,
   Sparkle,
@@ -17,11 +21,12 @@ import rekaMascot from '../../../assets/reka-bowerbird-mascot.png';
 import { WorkflowPreview } from '@/components/marketing/workflow-preview';
 import { Reveal } from '@/components/motion/reveal';
 import { SectionRule } from '@/components/signature/annotations';
-import { ProductSilhouette } from '@/components/signature/product-silhouette';
 import { Button } from '@/components/ui/button';
 import { Container, SectionHeading } from '@/components/ui/layout';
 import { getTemplate } from '@/domain/catalog';
 import { sampleScenarios } from '@/domain/demo/sample-scenarios';
+import { FEASIBILITY_LABELS, FEASIBILITY_STATUSES } from '@/domain/feasibility/types';
+import { SORT_MODE_LABELS, SORT_MODES } from '@/domain/ranking/rank';
 import { serverConfig } from '@/lib/config';
 
 export const metadata: Metadata = {
@@ -34,33 +39,33 @@ export const metadata: Metadata = {
 const INTELLIGENCES = [
   {
     index: '01',
-    title: 'Material intelligence',
+    title: 'Material',
     icon: Boxes,
-    body: 'Describe visible category, condition, contamination, and restrictions, while refusing to guess dimensions.',
+    body: 'Reads category, condition and contamination from your photos — and refuses to guess dimensions.',
   },
   {
     index: '02',
-    title: 'Product intelligence',
+    title: 'Product',
     icon: Ruler,
-    body: 'Propose products from a curated catalogue of validated specifications, parameterised inside declared bounds. Never invented geometry.',
+    body: 'Proposes products only from a validated catalogue, inside declared bounds. Never invented geometry.',
   },
   {
     index: '03',
-    title: 'Manufacturing intelligence',
+    title: 'Manufacturing',
     icon: Factory,
-    body: 'Check every gate deterministically: material family, sheet size, thickness, contamination, tooling. Then nest real parts with real kerf.',
+    body: 'Runs deterministic gates, then nests real parts with real kerf. No fit, no pass.',
   },
   {
     index: '04',
-    title: 'Market intelligence',
+    title: 'Market',
     icon: Package,
-    body: 'Report price only from labelled evidence, with its freshness and quality stated. No evidence means “Insufficient Market Data”, not a guess.',
+    body: 'Prices only from labelled evidence. None? “Insufficient Market Data”, never a guess.',
   },
   {
     index: '05',
-    title: 'Buyer intelligence',
+    title: 'Buyer',
     icon: Users,
-    body: 'Name categories of buyer that could want it, and surface registered demand that its owner consented to share. Never a brand that has not asked.',
+    body: 'Names buyer categories and consented demand — never a brand that hasn’t asked.',
   },
 ] as const;
 
@@ -73,6 +78,89 @@ const EXAMPLE_TEMPLATE_IDS = [
   'sheetwood-display-shelf-small',
 ] as const;
 
+const PIPELINE = [
+  {
+    step: '01',
+    title: 'Photograph and describe',
+    body: 'Up to four photos. The model reports only what it can see — never a measurement.',
+    aside: 'Client-side compression, server-side byte-level validation.',
+  },
+  {
+    step: '02',
+    title: 'Confirm by hand',
+    body: 'You verify every property. Each field is tagged inferred, confirmed, measured, or unknown.',
+    aside: 'An AI inference is never treated as a measurement.',
+  },
+  {
+    step: '03',
+    title: 'Discover candidates',
+    body: 'The model picks only from the validated catalogue, inside declared bounds. The rest is dropped.',
+    aside: 'Unknown templates, out-of-range parameters and unsafe claims are all dropped.',
+  },
+  {
+    step: '04',
+    title: 'Apply the gates',
+    body: 'Six ordered checks, from material family to one-unit yield. Any failure drops the candidate.',
+    aside: 'Rejection reasons are always stated.',
+  },
+  {
+    step: '05',
+    title: 'Cost it transparently',
+    body: 'Eleven cost lines, each showing its working. Integer minor units, one rounding step.',
+    aside: 'Every figure is editable and shows its working.',
+  },
+  {
+    step: '06',
+    title: 'Evidence the market',
+    body: 'A labelled reference set, aggregated to a median with p25/p75 and a freshness score.',
+    aside: 'No evidence produces Insufficient Market Data, not a price.',
+  },
+  {
+    step: '07',
+    title: 'Match buyers',
+    body: 'Buyer categories, or consented registered demand. Capacity shortfalls are flagged, not hidden.',
+    aside: 'No company is named unless it registered itself.',
+  },
+  {
+    step: '08',
+    title: 'Rank and explain',
+    body: 'Gates first, then a score per dimension — each with its own explanation.',
+    aside: 'Unknown dimensions are excluded and reported, never scored as zero.',
+  },
+] as const;
+
+const IMPACT_MEASURED = [
+  'Confirmed material records and quantities',
+  'Sheet area allocated to products',
+  'Material consumed by completed builds',
+  'Cutting waste from the nesting engine',
+] as const;
+
+const IMPACT_NOT_CLAIMED = [
+  'Carbon emissions avoided',
+  'Landfill diversion without a reuse record',
+  'Certification or regulatory compliance',
+  'Impact from an AI recommendation alone',
+] as const;
+
+const COMMUNITY_AREAS = [
+  {
+    icon: BookOpen,
+    title: 'Build outcomes',
+    body: 'Record what was made, what changed, and what the real yield was.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'Practical notes',
+    body: 'Share finishing, tooling, and process lessons without presenting opinion as certification.',
+  },
+  {
+    icon: Users,
+    title: 'Consented demand',
+    body: 'Connect registered needs with capable workshops while keeping business identity under owner control.',
+  },
+] as const;
+
 export default function LandingPage() {
   const scenarios = sampleScenarios();
   const examples = EXAMPLE_TEMPLATE_IDS.map((id) => getTemplate(id)).filter(
@@ -82,7 +170,7 @@ export default function LandingPage() {
   return (
     <>
       {/* ------------------------------------------------------------- hero */}
-      <section className="warm-orbit relative isolate overflow-hidden border-b border-line">
+      <section id="top" className="warm-orbit relative isolate overflow-hidden border-b border-line">
         <div className="playful-dots absolute inset-y-0 right-0 hidden w-1/2 opacity-60 lg:block" />
         <Container width="wide" className="relative py-16 sm:py-24 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center">
@@ -101,21 +189,21 @@ export default function LandingPage() {
               </h1>
 
               <p className="max-w-xl text-[0.9375rem] leading-relaxed text-ink-muted sm:text-base">
-                resaikel transforms leftover materials into manufacturable products and real business
-                opportunities through AI-powered material, production and market intelligence.
+                Photograph leftover material and get products you can actually build, cost and sell —
+                every number backed by evidence.
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
                 <Link href="/sign-in">
                   <Button size="lg" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-                    Discover material potential
+                    Open App
                   </Button>
                 </Link>
-                <Link href="/how-it-works">
+                <a href="#how-it-works">
                   <Button size="lg" variant="outline">
                     Explore how it works
                   </Button>
-                </Link>
+                </a>
               </div>
 
               <dl className="grid max-w-xl grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-6 sm:grid-cols-3">
@@ -132,7 +220,7 @@ export default function LandingPage() {
               </dl>
             </Reveal>
 
-            <Reveal delay={140} className="relative min-h-[31rem] sm:min-h-[35rem]">
+            <div className="relative min-h-[31rem] sm:min-h-[35rem]">
               <div className="absolute inset-x-0 top-0 rounded-[2rem] border border-line bg-accent-wash p-4 shadow-raised sm:left-4 sm:right-0 sm:p-6">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
@@ -178,9 +266,9 @@ export default function LandingPage() {
                 />
               </div>
               <p className="absolute bottom-2 left-2 z-30 max-w-[13rem] text-xs font-semibold leading-relaxed text-ink-muted">
-                Measured, not imagined. Every number keeps its evidence attached.
+                Measured, not imagined — every number keeps its evidence.
               </p>
-            </Reveal>
+            </div>
           </div>
         </Container>
       </section>
@@ -191,15 +279,15 @@ export default function LandingPage() {
         </p>
       </div>
 
-      {/* ------------------------------------------------------- workflow */}
-      <section id="workflow" className="border-b border-line bg-white py-16 sm:py-24">
+      {/* ------------------------------------------------------- how it works */}
+      <section id="how-it-works" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-8">
           <Reveal className="space-y-8">
             <SectionRule index="01" label="The workflow, step by step" />
             <SectionHeading
               eyebrow="Interactive preview"
               title="From a photograph to a ranked opportunity"
-              description="Walk the four steps. Nesting yield, cost lines, price bands, and buyer matches are computed by the real engine from a fixed sample input."
+              description="Walk four steps. Yield, cost, price and buyers are computed live by the real engine on a fixed sample."
             />
           </Reveal>
           <Reveal delay={80}>
@@ -208,7 +296,7 @@ export default function LandingPage() {
         </Container>
       </section>
 
-      {/* --------------------------------------------------- how it works */}
+      {/* ------------------------------------------------ five intelligences */}
       <section id="intelligence" className="border-b border-line bg-accent-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <Reveal className="space-y-10">
@@ -216,7 +304,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="How it works"
               title="Five questions, answered in order"
-              description="Each layer can only use what the layer above it established. That ordering is what stops a plausible sentence from being mistaken for an engineering result."
+              description="Each layer uses only what the one above it proved — so a good sentence is never mistaken for a result."
             />
           </Reveal>
 
@@ -240,26 +328,111 @@ export default function LandingPage() {
         </Container>
       </section>
 
+      {/* -------------------------------------------------- the pipeline */}
+      <section className="border-b border-line bg-white py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <Reveal className="space-y-10">
+            <SectionRule index="03" label="Eight steps, and the order is the point" />
+            <SectionHeading
+              eyebrow="The pipeline"
+              title="Eight steps, and each builds on the last"
+              description="No step may use what an earlier one didn’t establish."
+            />
+          </Reveal>
+          <ol className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
+            {PIPELINE.map((entry, index) => (
+              <Reveal as="li" key={entry.step} delay={index * 60} className="flex gap-5 border-t border-line pt-5">
+                <span className="micro-label tnum shrink-0 pt-0.5">{entry.step}</span>
+                <div className="space-y-2">
+                  <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
+                  <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
+                  <p className="micro-label text-accent-ink">{entry.aside}</p>
+                </div>
+              </Reveal>
+            ))}
+          </ol>
+        </Container>
+      </section>
+
+      {/* ------------------------------------------------------- reference */}
+      <section className="border-b border-line bg-surface py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <Reveal className="space-y-10">
+            <SectionRule index="04" label="Reference" />
+            <SectionHeading
+              eyebrow="Reference"
+              title="The five verdicts, and the five sort modes"
+              description="Every state a candidate can be in, and every way to order them."
+            />
+          </Reveal>
+
+          <Reveal as="div" delay={80} className="grid gap-8 lg:grid-cols-2">
+            <div className="space-y-3">
+              <h3 className="micro-label">Feasibility verdicts</h3>
+              <dl className="divide-y divide-line">
+                {FEASIBILITY_STATUSES.map((status) => (
+                  <div key={status} className="py-2.5">
+                    <dt className="text-sm font-medium text-ink">{FEASIBILITY_LABELS[status]}</dt>
+                    <dd className="mt-0.5 text-xs leading-relaxed text-ink-muted">
+                      {status === 'process_feasible'
+                        ? 'Nests in the stock and every required tool is available. Still an opinion, not a certification.'
+                        : status === 'geometrically_feasible'
+                          ? 'The parts fit the sheets, but no workshop profile was supplied, so the process could not be verified.'
+                          : status === 'conditionally_feasible'
+                            ? 'Nests, but tooling is missing, the condition is poor, or defects were recorded but not located.'
+                            : status === 'not_feasible'
+                              ? 'A hard constraint failed: wrong material family, a panel that cannot be cut, too thin, contaminated, or no unit fits.'
+                              : 'Required material properties are still unconfirmed, so nothing is decided either way.'}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="micro-label">Sort modes on the comparison screen</h3>
+              <ul className="divide-y divide-line">
+                {SORT_MODES.map((mode) => (
+                  <li key={mode} className="flex items-baseline justify-between gap-4 py-2.5">
+                    <span className="text-sm text-ink">{SORT_MODE_LABELS[mode]}</span>
+                    <span className="micro-label">dimension value</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs leading-relaxed text-ink-muted">
+                Sorting reuses the same normalised dimension values the ranking engine scored, so the
+                order on screen can always be traced back to an explanation. Candidates that failed a
+                gate stay at the bottom in every mode.
+              </p>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
       {/* -------------------------------------------------------- examples */}
       <section id="examples" className="border-b border-line bg-primary-wash py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <Reveal className="space-y-10">
-            <SectionRule index="03" label="Material to product" />
+            <SectionRule index="05" label="Material to product" />
             <SectionHeading
               eyebrow="Examples"
               title="What the catalogue actually contains"
-              description="Six of the validated specifications currently in the catalogue, each with a real parts list, tooling requirement and labour time. Additions must be genuinely buildable, not imagined."
+              description="Six validated specs, each with a real parts list, tooling and labour time. If it can’t be built, it isn’t here."
             />
           </Reveal>
 
           <ul className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(17rem, 100%), 1fr))' }}>
             {examples.map((template, index) => (
               <Reveal as="li" key={template.id} delay={index * 60} className="panel overflow-hidden">
-                <ProductSilhouette
-                  category={template.category}
-                  partCount={template.parts.length}
-                  className="border-b border-line"
-                />
+                <div className="relative aspect-[4/3] overflow-hidden border-b border-line bg-surface-sunken">
+                  <Image
+                    src={`/catalogue/${template.id}.jpg`}
+                    alt={template.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 17rem"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="space-y-2 p-4">
                   <h3 className="text-[0.9375rem] font-medium text-ink">{template.name}</h3>
                   <p className="line-clamp-3 text-xs leading-relaxed text-ink-muted">
@@ -290,44 +463,47 @@ export default function LandingPage() {
         </Container>
       </section>
 
-      {/* ------------------------------------------------------ intelligence */}
-      <section className="border-b border-line bg-white py-16 sm:py-24">
+      {/* ---------------------------------------------------------- impact */}
+      <section id="impact" className="border-b border-line bg-white py-16 sm:py-24">
         <Container width="wide" className="space-y-10">
           <Reveal className="space-y-10">
-            <SectionRule index="04" label="Where it refuses to guess" />
+            <SectionRule index="06" label="Count what was reused" />
             <SectionHeading
-              eyebrow="What it will not do"
-              title="The limits are part of the product"
-              description="A platform that turns waste into business decisions earns trust by being explicit about the edge of what it knows."
+              eyebrow="Impact"
+              title="Count what was reused. Leave the rest unclaimed."
+              description="We measure real material movement from stock to finished work — not assumptions dressed up as statistics."
             />
           </Reveal>
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            {[
-              {
-                title: 'It will not certify anything',
-                body: 'No load rating, fire rating, food-contact safety, or packaging standard compliance. A successful 2D layout does not prove structural safety.',
-              },
-              {
-                title: 'It will not invent a price',
-                body: 'Prices come from labelled evidence with its source type and freshness shown. Listing prices are labelled as asking prices and never presented as proof of demand. No evidence means Insufficient Market Data.',
-              },
-              {
-                title: 'It will not name a buyer',
-                body: 'Buyer output is always a category of buyer, or a registered request whose owner consented to be matched. No brand is ever presented as an active purchaser without their own registration.',
-              },
-            ].map((entry, index) => (
-              <Reveal
-                as="div"
-                key={entry.title}
-                delay={index * 90}
-                className="space-y-2 border-t border-line pt-5"
-              >
-                <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
-                <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
-              </Reveal>
-            ))}
-          </div>
+          <Reveal as="div" delay={80} className="grid gap-12 lg:grid-cols-2">
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">What can be measured</h3>
+              <ul className="mt-5 space-y-4">
+                {IMPACT_MEASURED.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
+                  >
+                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">What remains unknown</h3>
+              <ul className="mt-5 space-y-4">
+                {IMPACT_NOT_CLAIMED.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-3 border-t border-line pt-4 text-sm text-ink-muted"
+                  >
+                    <MinusCircle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
         </Container>
       </section>
 
@@ -338,7 +514,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="Sustainability"
               title="Measured, not asserted"
-              description="Sustainability claims are easy to fabricate and hard to verify, so resaikel reports only what it can count."
+              description="Easy to fabricate, hard to verify. So we report only what we can count."
             />
           </Reveal>
 
@@ -357,16 +533,122 @@ export default function LandingPage() {
               ))}
             </dl>
             <p className="text-sm leading-relaxed text-ink-muted">
-              Waste reduction is reported as arithmetic on your own records: sheet area registered,
-              sheet area consumed by a completed project, and the difference. No carbon figure is
-              shown, because there is no documented methodology behind one yet. An undocumented
-              number is worse than no number.
+              Waste reduction is arithmetic on your own records — area in, area used, the difference.
+              No carbon figure, because there’s no methodology behind one yet.
             </p>
-            <p className="text-xs leading-relaxed text-ink-faint">
-              The same principle applies to the AI: resaikel does not claim a proprietary trained
-              model. Outcome data is recorded so that recommendation quality can be evaluated later,
-              and that is all that is claimed.
-            </p>
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* ------------------------------------------------------------ limits */}
+      <section className="border-b border-line bg-white py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <Reveal className="space-y-10">
+            <SectionRule index="07" label="Where it refuses to guess" />
+            <SectionHeading
+              eyebrow="What it will not do"
+              title="The limits are part of the product"
+              description="Trust comes from being explicit about the edge of what we know."
+            />
+          </Reveal>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {[
+              {
+                title: 'It will not certify anything',
+                body: 'No load, fire, food-contact or packaging-standard rating. A 2D layout is not a safety proof.',
+              },
+              {
+                title: 'It will not invent a price',
+                body: 'Prices trace to labelled evidence. Listings are asking prices, never proof of demand.',
+              },
+              {
+                title: 'It will not name a buyer',
+                body: 'Always a buyer category, or a consented request. No brand is shown as a buyer unless it registered.',
+              },
+            ].map((entry, index) => (
+              <Reveal
+                as="div"
+                key={entry.title}
+                delay={index * 90}
+                className="space-y-2 border-t border-line pt-5"
+              >
+                <h3 className="text-[0.9375rem] font-medium text-ink">{entry.title}</h3>
+                <p className="text-sm leading-relaxed text-ink-muted">{entry.body}</p>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* ------------------------------------------------------- community */}
+      <section id="community" className="border-b border-line bg-accent-wash py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <Reveal className="space-y-10">
+            <SectionRule index="08" label="Knowledge that survives the first build" />
+            <SectionHeading
+              eyebrow="Community"
+              title="Useful knowledge should survive the first build."
+              description="Built around production outcomes, practical lessons and consent — not a feed of unverified AI ideas."
+            />
+          </Reveal>
+          <div className="grid gap-8 lg:grid-cols-3">
+            {COMMUNITY_AREAS.map((area, index) => {
+              const Icon = area.icon;
+              return (
+                <Reveal
+                  as="article"
+                  key={area.title}
+                  delay={index * 70}
+                  className="border-t border-line pt-5"
+                >
+                  <Icon className="size-6 text-primary" aria-hidden />
+                  <h3 className="mt-4 text-[0.9375rem] font-medium text-ink">{area.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-muted">{area.body}</p>
+                </Reveal>
+              );
+            })}
+          </div>
+          <p className="border-t border-line pt-6 text-sm leading-relaxed text-ink-muted">
+            Publishing isn’t live yet. Start a material record and keep your production evidence
+            ready.
+          </p>
+        </Container>
+      </section>
+
+      {/* ----------------------------------------------------------- about */}
+      <section id="about" className="border-b border-line bg-white py-16 sm:py-24">
+        <Container width="wide" className="space-y-10">
+          <Reveal>
+            <SectionRule index="09" label="Why resaikel exists" />
+          </Reveal>
+          <Reveal as="div" className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <SectionHeading
+              eyebrow="About"
+              title="A practical bridge between leftover material and useful work."
+              description="Making small-scale circular manufacturing easier to reason about — visual assistance, deterministic engineering, and commercial checks."
+            />
+            <Image
+              src={rekaMascot}
+              alt="Reka, the resaikel bowerbird mascot"
+              className="mx-auto h-auto w-56"
+            />
+          </Reveal>
+          <Reveal as="div" delay={80} className="grid gap-12 border-t border-line pt-8 lg:grid-cols-2">
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">Why this product exists</h3>
+              <p className="mt-3 text-sm leading-7 text-ink-muted">
+                Reuse advice is often inspiring but incomplete. An idea is only useful when the
+                material fits, the process exists, the cost is visible, and uncertainty is stated.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-[0.9375rem] font-medium text-ink">How AI is used</h3>
+              <p className="mt-3 text-sm leading-7 text-ink-muted">
+                AI describes photos, picks from the catalogue, and explains results. People and
+                deterministic engines own every fact that touches production or money.
+              </p>
+            </div>
           </Reveal>
         </Container>
       </section>
@@ -379,23 +661,23 @@ export default function LandingPage() {
               align="center"
               eyebrow="Start here"
               title="Photograph the offcuts. See what they are worth."
-              description="Upload a material, confirm what it actually is, and get products that can be built, costed, and sold with every assumption visible."
+              description="Upload a material, confirm what it is, and get products you can build, cost and sell — every assumption visible."
             />
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link href="/sign-in">
                 <Button variant="accent" size="lg" iconRight={<ArrowRight className="size-4" aria-hidden />}>
-                  Discover material potential
+                  Open App
                 </Button>
               </Link>
-              <Link href="/how-it-works">
+              <a href="#how-it-works">
                 <Button size="lg" variant="outline" className="border-white/50 bg-white text-ink hover:bg-white/90">
                   Explore how it works
                 </Button>
-              </Link>
+              </a>
             </div>
             <p className="flex items-center justify-center gap-2 text-xs text-ink-faint">
               <Sparkle className="size-3.5" aria-hidden />
-              Free to try. No payment processing, and no transaction is created.
+              Free to try. No payments, no transactions.
             </p>
           </Reveal>
         </Container>
@@ -410,10 +692,8 @@ export default function LandingPage() {
               <span className="micro-label">Everything on this page</span>
             </div>
             <p className="max-w-3xl text-xs leading-relaxed text-ink-muted">
-              Every example, price and feasibility result on this site is generated from a fixed
-              sample scenario through the real engines. No customer logos, testimonials or market
-              statistics are shown, because resaikel has no customers to cite and no market data of
-              its own to quote.
+              Every example, price and feasibility result here runs through the real engines on a
+              fixed sample. No customer logos, testimonials or market stats — we have none to cite.
             </p>
           </div>
         </Container>

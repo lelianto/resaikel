@@ -7,11 +7,11 @@ const COLUMNS = [
   {
     title: 'Product',
     links: [
-      { href: '/sign-in?next=/materials/new', label: 'Scan material' },
-      { href: '/impact', label: 'Impact' },
-      { href: '/community', label: 'Community' },
-      { href: '/about', label: 'About' },
-      { href: '/sign-in', label: 'Sign in' },
+      { href: '#top', label: 'Home' },
+      { href: '#how-it-works', label: 'How it works' },
+      { href: '#impact', label: 'Impact' },
+      { href: '#community', label: 'Community' },
+      { href: '#about', label: 'About' },
     ],
   },
 ] as const;
@@ -29,6 +29,12 @@ export function SiteFooter() {
             Turn waste into worth. Material, production, and market intelligence for circular
             manufacturing.
           </p>
+          <Link
+            href="/sign-in"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary transition-colors hover:text-primary-hover sm:min-h-0"
+          >
+            Open App →
+          </Link>
         </div>
 
         {COLUMNS.map((column) => (
@@ -37,12 +43,12 @@ export function SiteFooter() {
             <ul className="space-y-2">
               {column.links.map((link) => (
                 <li key={link.href}>
-                  <Link
+                  <a
                     href={link.href}
                     className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-ink sm:min-h-0"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

@@ -14,12 +14,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           <Link href="/" className="rounded-sm" aria-label="resaikel home">
             <Logo />
           </Link>
-          <Link
-            href="/how-it-works"
-            className="text-[0.8125rem] text-ink-muted transition-colors hover:text-ink"
-          >
-            How it works
-          </Link>
         </div>
       </header>
 
