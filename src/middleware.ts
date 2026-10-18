@@ -24,7 +24,7 @@ const PROTECTED_PREFIXES = [
 ];
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
   const isProtected = PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
@@ -37,7 +37,8 @@ export function middleware(request: NextRequest) {
   if (hasSession) return NextResponse.next();
 
   const signInUrl = new URL('/sign-in', request.url);
-  signInUrl.searchParams.set('next', pathname);
+  const nextTarget = `${pathname}${search}`;
+  signInUrl.searchParams.set('next', nextTarget);
   return NextResponse.redirect(signInUrl);
 }
 
